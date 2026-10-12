@@ -127,6 +127,12 @@
   </actuator>
 
   <keyframe>
-    <key name="home" qpos="0 0 0 0 0 0" ctrl="0 0 0 0 0 0"/>
   </keyframe>
+  <actuator>
+    <position name="motor_base" joint="base_rotation" ctrlrange="-2.2 2.2"/> <position name="motor_pitch" 
+    joint="pitch" ctrlrange="-1.57 0.6"/> <position name="motor_elbow" joint="elbow" ctrlrange="-1.57 1.45"/> 
+    <position name="motor_wrist_pitch" joint="wrist_pitch" ctrlrange="-2.0 2.0"/> <position 
+    name="motor_wrist_roll" joint="wrist_roll" ctrlrange="-3.14 3.14"/> <position name="motor_gripper" 
+    joint="gripper" ctrlrange="-1.60 0.032"/>
+  </actuator>
 </mujoco>
