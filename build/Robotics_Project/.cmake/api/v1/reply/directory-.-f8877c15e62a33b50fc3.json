@@ -48,13 +48,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 62,
+				"line" : 49,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 67,
+				"line" : 69,
 				"parent" : 0
 			},
 			{
@@ -286,7 +286,9 @@
 			"destination" : "lib/Robotics_Project",
 			"paths" : 
 			[
-				"scripts/gui_node.py"
+				"scripts/gui_node.py",
+				"scripts/fk_node.py",
+				"scripts/ik_node.py"
 			],
 			"type" : "file"
 		},

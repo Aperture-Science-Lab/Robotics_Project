@@ -74,7 +74,11 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/Robotics_Project" TYPE PROGRAM FILES "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/scripts/gui_node.py")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/Robotics_Project" TYPE PROGRAM FILES
+    "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/scripts/gui_node.py"
+    "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/scripts/fk_node.py"
+    "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/scripts/ik_node.py"
+    )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)

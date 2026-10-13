@@ -25,6 +25,8 @@
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_extension_collision.stl
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/scene.xml
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/gui_node.py
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/fk_node.py
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/ik_node.py
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/ament_index/resource_index/package_run_dependencies/Robotics_Project
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/ament_index/resource_index/parent_prefix_path/Robotics_Project
 /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/environment/ament_prefix_path.sh

@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 """
-ROS 2 GUI Node for Robotics Project
-Includes:
-- Mode Switcher: Forward Kinematics (Joint Space) vs Inverse Kinematics (Cartesian Space)
-- 3 Input Types: Sliders, Constants, and Signal Builder (Sine Wave)
-- Clear placeholders for connecting FK and IK nodes
+ROS 2 GUI Node connected with Forward Kinematics and Inverse Kinematics nodes
+- FK Signal Builder: Independent amplitude slider and frequency box per joint
+- IK Signal Builder: 3D spatial sine wave on X, Y, Z in meters
+- Constants tab: Displays exact physical limits
 """
 
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
-# from geometry_msgs.msg import PoseStamped # (Uncomment when you use Pose for IK)
+from geometry_msgs.msg import PoseStamped
 
 import tkinter as tk
 from tkinter import ttk
@@ -19,93 +17,81 @@ import threading
 import time
 import math
 
+
 class RobotGUINode(Node):
     def __init__(self):
         super().__init__('robot_gui_node')
         self.get_logger().info("Robot Control GUI Node Initialized.")
 
-        # =====================================================================
-        # PLACEHOLDER 1: ROS 2 PUBLISHERS & SUBSCRIBERS
-        # =====================================================================
-        # 1. To publish directly to MuJoCo for testing joint angles:
         self.joint_command_pub = self.create_publisher(Float64MultiArray, '/joint_commands', 10)
+        self.cartesian_target_pub = self.create_publisher(PoseStamped, '/target_pose', 10)
 
-        # 2. PLACEHOLDER: Connect to your Inverse Kinematics Node
-        # When your IK node is ready, uncomment this to send Cartesian targets (X, Y, Z):
-        # self.cartesian_target_pub = self.create_publisher(PoseStamped, '/target_pose', 10)
+        self.ee_pose_sub = self.create_subscription(
+            PoseStamped, '/current_ee_pose', self.ee_pose_callback, 10
+        )
 
-        # 3. PLACEHOLDER: Connect to your Forward Kinematics Node
-        # When your FK node is ready, subscribe to read calculated End-Effector position:
-        # self.ee_pose_sub = self.create_subscription(PoseStamped, '/current_ee_pose', self.ee_pose_callback, 10)
-
-        # Robot state variables
         self.num_joints = 6
         self.joint_names = [f"Joint {i+1}" for i in range(self.num_joints)]
-        self.current_joint_values = [0.0] * self.num_joints
-        self.current_cartesian_values = {"X": 0.3, "Y": 0.0, "Z": 0.3, "Roll": 0.0, "Pitch": 0.0, "Yaw": 0.0}
+        self.joint_limits = [
+            (-2.20, 2.20),   # Joint 1: Base Yaw
+            (-1.57, 0.60),   # Joint 2: Shoulder Pitch
+            (-1.57, 1.45),   # Joint 3: Elbow Pitch
+            (-2.00, 2.00),   # Joint 4: Wrist Pitch
+            (-3.14, 3.14),   # Joint 5: Wrist Roll
+            (-1.60, 0.032)   # Joint 6: Gripper
+        ]
 
-        # Signal Builder state
+        # Home workspace target coordinates (Negative X)
+        self.current_cartesian_values = {"X": -0.18, "Y": 0.00, "Z": 0.18}
+        self.measured_ee_pose = {"X": 0.0, "Y": 0.0, "Z": 0.0}
+
         self.signal_running = False
         self.signal_thread = None
 
-    # =========================================================================
-    # PLACEHOLDER 2: DISPATCHING FORWARD KINEMATICS COMMANDS
-    # =========================================================================
-    def dispatch_fk_command(self, joint_angles):
-        """
-        Called whenever Sliders, Constants, or Signals update in FK (Joint) Mode.
-        joint_angles: list of floats [q1, q2, ..., q6] in radians
-        """
-        self.current_joint_values = joint_angles
-        self.get_logger().info(f"[FK MODE] Dispatched Joint Angles: {[round(x, 2) for x in joint_angles]}")
+    def ee_pose_callback(self, msg: PoseStamped):
+        self.measured_ee_pose["X"] = msg.pose.position.x
+        self.measured_ee_pose["Y"] = msg.pose.position.y
+        self.measured_ee_pose["Z"] = msg.pose.position.z
 
-        # Currently publishing straight to /joint_commands so MuJoCo moves:
+    def dispatch_fk_command(self, joint_angles):
         msg = Float64MultiArray()
-        msg.data = joint_angles
+        msg.data = [float(x) for x in joint_angles]
         self.joint_command_pub.publish(msg)
 
-        # --- FUTURE PLACEHOLDER ---
-        # If you have an FK node that computes end-effector position from joint angles:
-        # Your FK node will read /joint_state or /joint_commands and compute the forward kinematics!
-
-    # =========================================================================
-    # PLACEHOLDER 3: DISPATCHING INVERSE KINEMATICS COMMANDS
-    # =========================================================================
-    def dispatch_ik_command(self, x, y, z, roll=0.0, pitch=0.0, yaw=0.0):
-        """
-        Called whenever Sliders, Constants, or Signals update in IK (Cartesian) Mode.
-        Target coordinates of the end-effector in meters.
-        """
+    def dispatch_ik_command(self, x, y, z):
         self.current_cartesian_values["X"] = x
         self.current_cartesian_values["Y"] = y
         self.current_cartesian_values["Z"] = z
-        self.get_logger().info(f"[IK MODE] Target Cartesian Pose -> X:{x:.2f}, Y:{y:.2f}, Z:{z:.2f}")
 
-        # --- FUTURE PLACEHOLDER: PUBLISH TO IK NODE ---
-        # When your IK node is created, publish this target to /target_pose:
-        # pose_msg = PoseStamped()
-        # pose_msg.pose.position.x = x
-        # pose_msg.pose.position.y = y
-        # pose_msg.pose.position.z = z
-        # self.cartesian_target_pub.publish(pose_msg)
-        #
-        # Then, your IK node will calculate q = IK(X,Y,Z) and send q to /joint_commands!
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = self.get_clock().now().to_msg()
+        pose_msg.header.frame_id = "frame_0"
+        pose_msg.pose.position.x = float(x)
+        pose_msg.pose.position.y = float(y)
+        pose_msg.pose.position.z = float(z)
+        pose_msg.pose.orientation.w = 1.0
+        self.cartesian_target_pub.publish(pose_msg)
 
 
-# =============================================================================
-# TKINTER GUI FRONTEND
-# =============================================================================
 class GUIApp:
-    def __init__(self, root, node):
+    def __init__(self, root, node: RobotGUINode):
         self.root = root
         self.node = node
-        self.root.title("Robotics Project - Kinematics & Control GUI")
-        self.root.geometry("520x720")
+        self.root.title("Low Cost Robot Arm - Kinematics GUI")
+        self.root.geometry("600x900")
 
-        # Top Mode Selector: FK vs IK
+        self.is_ready = False
+
+        # Live FK Feedback Bar
+        feedback_frame = ttk.LabelFrame(root, text=" Live End-Effector Position (From FK Node) ", padding=8)
+        feedback_frame.pack(fill="x", padx=15, pady=6)
+        self.lbl_ee = ttk.Label(feedback_frame, text="X: 0.000 m | Y: 0.000 m | Z: 0.000 m", font=("Helvetica", 11, "bold"))
+        self.lbl_ee.pack()
+
+        # Mode Selector
         self.mode_var = tk.StringVar(value="FK")
-        mode_frame = ttk.LabelFrame(root, text=" 1. Select Kinematics Mode ", padding=10)
-        mode_frame.pack(fill="x", padx=15, pady=8)
+        mode_frame = ttk.LabelFrame(root, text=" 1. Kinematics Mode ", padding=10)
+        mode_frame.pack(fill="x", padx=15, pady=6)
 
         ttk.Radiobutton(
             mode_frame, text="Forward Kinematics (Joint Space / Radians)",
@@ -113,11 +99,11 @@ class GUIApp:
         ).pack(anchor="w", pady=2)
 
         ttk.Radiobutton(
-            mode_frame, text="Inverse Kinematics (Cartesian Space / X, Y, Z Meters)",
+            mode_frame, text="Inverse Kinematics (Cartesian Space / Negative X)",
             variable=self.mode_var, value="IK", command=self.on_mode_change
         ).pack(anchor="w", pady=2)
 
-        # Tabbed Notebook for 3 Input Methods
+        # Notebook Tabs
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill="both", expand=True, padx=15, pady=5)
 
@@ -129,51 +115,78 @@ class GUIApp:
         self.notebook.add(self.tab_constants, text=" Constants ")
         self.notebook.add(self.tab_signals, text=" Signal Builder ")
 
-        # Build each tab
         self.sliders = {}
         self.constant_entries = {}
+
+        # Signal builder storage for individual FK joints
+        self.fk_amp_scales = []
+        self.fk_amp_labels = []
+        self.fk_freq_entries = []
+
         self.build_sliders_tab()
         self.build_constants_tab()
         self.build_signals_tab()
 
-        # Bottom Bar: Emergency Stop / Reset
         bottom_frame = ttk.Frame(root, padding=10)
         bottom_frame.pack(fill="x", side="bottom")
         ttk.Button(bottom_frame, text="Reset to Zero", command=self.reset_all).pack(fill="x")
 
+        self.is_ready = True
+        self.update_live_display()
+
+    def update_live_display(self):
+        ee = self.node.measured_ee_pose
+        self.lbl_ee.config(text=f"X: {ee['X']:+.4f} m | Y: {ee['Y']:+.4f} m | Z: {ee['Z']:+.4f} m")
+        self.root.after(100, self.update_live_display)
+
     def on_mode_change(self):
-        """Switches controls between Joint space (angles) and Cartesian space (X, Y, Z)"""
         mode = self.mode_var.get()
         if mode == "FK":
             self.fk_slider_frame.pack(fill="both", expand=True)
             self.ik_slider_frame.pack_forget()
+
             self.fk_const_frame.pack(fill="both", expand=True)
             self.ik_const_frame.pack_forget()
+
+            # Switch Signal Builder to Per-Joint FK view
+            self.fk_signal_frame.pack(fill="both", expand=True)
+            self.ik_signal_frame.pack_forget()
         else:
             self.fk_slider_frame.pack_forget()
             self.ik_slider_frame.pack(fill="both", expand=True)
+
             self.fk_const_frame.pack_forget()
             self.ik_const_frame.pack(fill="both", expand=True)
 
+            # Switch Signal Builder to 3D Cartesian IK view
+            self.fk_signal_frame.pack_forget()
+            self.ik_signal_frame.pack(fill="both", expand=True)
+
+            self.publish_from_sliders()
+
     # ---------------- TAB 1: SLIDERS ----------------
     def build_sliders_tab(self):
-        # FK Sliders
         self.fk_slider_frame = ttk.Frame(self.tab_sliders)
         self.fk_slider_frame.pack(fill="both", expand=True)
 
         for i in range(self.node.num_joints):
             name = f"Joint {i+1}"
+            q_min, q_max = self.node.joint_limits[i]
             row = ttk.Frame(self.fk_slider_frame)
             row.pack(fill="x", pady=4)
-            ttk.Label(row, text=name, width=10).pack(side="left")
-            s = ttk.Scale(row, from_=-3.14, to=3.14, orient="horizontal", command=lambda val: self.publish_from_sliders())
+            ttk.Label(row, text=name, width=12).pack(side="left")
+            s = ttk.Scale(row, from_=q_min, to=q_max, orient="horizontal", command=lambda val: self.publish_from_sliders())
             s.set(0.0)
             s.pack(side="right", fill="x", expand=True)
             self.sliders[name] = s
 
-        # IK Sliders (Cartesian Coordinates)
         self.ik_slider_frame = ttk.Frame(self.tab_sliders)
-        for axis, (min_v, max_v, init_v) in [("X", (0.0, 0.8, 0.3)), ("Y", (-0.8, 0.8, 0.0)), ("Z", (0.0, 0.8, 0.3))]:
+        cart_axes = [
+            ("X", (-0.25, -0.10, -0.18)),
+            ("Y", (-0.15, 0.15, 0.00)),
+            ("Z", (0.05, 0.28, 0.18))
+        ]
+        for axis, (min_v, max_v, init_v) in cart_axes:
             row = ttk.Frame(self.ik_slider_frame)
             row.pack(fill="x", pady=6)
             ttk.Label(row, text=f"Target {axis} (m)", width=14).pack(side="left")
@@ -183,6 +196,9 @@ class GUIApp:
             self.sliders[axis] = s
 
     def publish_from_sliders(self):
+        if not self.is_ready:
+            return
+
         if self.mode_var.get() == "FK":
             angles = [self.sliders[f"Joint {i+1}"].get() for i in range(self.node.num_joints)]
             self.node.dispatch_fk_command(angles)
@@ -197,21 +213,48 @@ class GUIApp:
         # FK Constants
         self.fk_const_frame = ttk.Frame(self.tab_constants)
         self.fk_const_frame.pack(fill="both", expand=True)
+
+        ttk.Label(
+            self.fk_const_frame,
+            text="Set Joint Angles (Values outside limits are clamped):",
+            font=("Helvetica", 9, "bold")
+        ).pack(anchor="w", pady=(0, 6))
+
         for i in range(self.node.num_joints):
+            name = f"Joint {i+1}"
+            q_min, q_max = self.node.joint_limits[i]
             row = ttk.Frame(self.fk_const_frame)
             row.pack(fill="x", pady=4)
-            ttk.Label(row, text=f"Joint {i+1} (rad):", width=14).pack(side="left")
+
+            lbl_text = f"{name} [{q_min:+.2f} to {q_max:+.2f} rad]:"
+            ttk.Label(row, text=lbl_text, width=28).pack(side="left")
+
             ent = ttk.Entry(row)
             ent.insert(0, "0.0")
             ent.pack(side="right", fill="x", expand=True)
-            self.constant_entries[f"Joint {i+1}"] = ent
+            self.constant_entries[name] = ent
 
         # IK Constants
         self.ik_const_frame = ttk.Frame(self.tab_constants)
-        for axis, default in [("X", "0.30"), ("Y", "0.00"), ("Z", "0.30")]:
+
+        ttk.Label(
+            self.ik_const_frame,
+            text="Set Cartesian Coordinates (Reachable Workspace Limits):",
+            font=("Helvetica", 9, "bold")
+        ).pack(anchor="w", pady=(0, 6))
+
+        ik_configs = [
+            ("X", "-0.18", "-0.25 to -0.10 m"),
+            ("Y", "0.00", "-0.15 to +0.15 m"),
+            ("Z", "0.18", "+0.05 to +0.28 m")
+        ]
+        for axis, default, lim_str in ik_configs:
             row = ttk.Frame(self.ik_const_frame)
             row.pack(fill="x", pady=4)
-            ttk.Label(row, text=f"Target {axis} (m):", width=14).pack(side="left")
+
+            lbl_text = f"Target {axis} [{lim_str}]:"
+            ttk.Label(row, text=lbl_text, width=28).pack(side="left")
+
             ent = ttk.Entry(row)
             ent.insert(0, default)
             ent.pack(side="right", fill="x", expand=True)
@@ -222,45 +265,122 @@ class GUIApp:
     def apply_constants(self):
         try:
             if self.mode_var.get() == "FK":
-                angles = [float(self.constant_entries[f"Joint {i+1}"].get()) for i in range(self.node.num_joints)]
-                # Sync sliders
-                for i, a in enumerate(angles):
-                    self.sliders[f"Joint {i+1}"].set(a)
+                angles = []
+                for i in range(self.node.num_joints):
+                    val = float(self.constant_entries[f"Joint {i+1}"].get())
+                    q_min, q_max = self.node.joint_limits[i]
+                    val = max(q_min, min(q_max, val))
+                    angles.append(val)
+                    self.sliders[f"Joint {i+1}"].set(val)
                 self.node.dispatch_fk_command(angles)
             else:
                 x = float(self.constant_entries["X"].get())
                 y = float(self.constant_entries["Y"].get())
                 z = float(self.constant_entries["Z"].get())
+                x = max(-0.25, min(-0.10, x))
+                y = max(-0.15, min( 0.15, y))
+                z = max( 0.05, min( 0.28, z))
                 self.sliders["X"].set(x)
                 self.sliders["Y"].set(y)
                 self.sliders["Z"].set(z)
                 self.node.dispatch_ik_command(x, y, z)
         except ValueError:
-            print("Invalid number entered in Constants tab.")
+            print("Invalid input in constants.")
 
     # ---------------- TAB 3: SIGNAL BUILDER ----------------
     def build_signals_tab(self):
-        ttk.Label(self.tab_signals, text="Sinusoidal Waveform Generator", font=("Helvetica", 11, "bold")).pack(pady=5)
-        
-        # Amplitude
-        amp_frame = ttk.Frame(self.tab_signals)
-        amp_frame.pack(fill="x", pady=4)
-        ttk.Label(amp_frame, text="Amplitude (rad / m):", width=20).pack(side="left")
-        self.entry_amp = ttk.Entry(amp_frame)
-        self.entry_amp.insert(0, "0.5")
-        self.entry_amp.pack(side="right", fill="x", expand=True)
+        # -------------------------------------------------------------
+        # 1. FK FRAME: INDIVIDUAL PER-JOINT AMPLITUDE & FREQUENCY
+        # -------------------------------------------------------------
+        self.fk_signal_frame = ttk.Frame(self.tab_signals)
+        self.fk_signal_frame.pack(fill="both", expand=True)
 
-        # Frequency
-        freq_frame = ttk.Frame(self.tab_signals)
-        freq_frame.pack(fill="x", pady=4)
-        ttk.Label(freq_frame, text="Frequency (Hz):", width=20).pack(side="left")
-        self.entry_freq = ttk.Entry(freq_frame)
-        self.entry_freq.insert(0, "0.5")
-        self.entry_freq.pack(side="right", fill="x", expand=True)
+        ttk.Label(
+            self.fk_signal_frame,
+            text="Individual Joint Signal Generator (Radians & Hz):",
+            font=("Helvetica", 10, "bold")
+        ).pack(anchor="w", pady=(0, 6))
 
-        # Toggle Button
+        for i in range(self.node.num_joints):
+            row = ttk.Frame(self.fk_signal_frame)
+            row.pack(fill="x", pady=4)
+
+            # Joint Title
+            ttk.Label(row, text=f"Joint {i+1}:", width=8, font=("Helvetica", 9, "bold")).pack(side="left")
+
+            # Amplitude Slider
+            ttk.Label(row, text="Amp:", width=4).pack(side="left")
+            s = ttk.Scale(
+                row, from_=0.0, to=0.5, orient="horizontal",
+                command=lambda val, idx=i: self.on_fk_amp_slider_change(idx, val)
+            )
+            # Joint 2 has initial amplitude 0.2 rad, others 0.0 by default (user can raise any joint)
+            init_amp = 0.20 if i == 1 else 0.0
+            s.set(init_amp)
+            s.pack(side="left", fill="x", expand=True, padx=4)
+            self.fk_amp_scales.append(s)
+
+            lbl_val = ttk.Label(row, text=f"{init_amp:.2f} rad", width=8)
+            lbl_val.pack(side="left", padx=2)
+            self.fk_amp_labels.append(lbl_val)
+
+            # Frequency Entry
+            ttk.Label(row, text="Freq (Hz):", width=9).pack(side="left", padx=(6, 2))
+            ent_freq = ttk.Entry(row, width=6)
+            ent_freq.insert(0, "0.5")
+            ent_freq.pack(side="left")
+            self.fk_freq_entries.append(ent_freq)
+
+        # -------------------------------------------------------------
+        # 2. IK FRAME: 3D CARTESIAN AMPLITUDE & FREQUENCY
+        # -------------------------------------------------------------
+        self.ik_signal_frame = ttk.Frame(self.tab_signals)
+
+        ttk.Label(
+            self.ik_signal_frame,
+            text="3D Cartesian Signal Generator (Meters & Hz):",
+            font=("Helvetica", 10, "bold")
+        ).pack(anchor="w", pady=(0, 6))
+
+        # IK Amplitude Row
+        amp_row = ttk.Frame(self.ik_signal_frame)
+        amp_row.pack(fill="x", pady=6)
+
+        ttk.Label(amp_row, text="Amplitude (m):", width=16).pack(side="left")
+        self.lbl_ik_amp_val = ttk.Label(amp_row, text="0.030 m", width=10, font=("Helvetica", 9, "bold"))
+        self.lbl_ik_amp_val.pack(side="right")
+
+        self.scale_ik_amp = ttk.Scale(
+            amp_row, from_=0.0, to=0.05, orient="horizontal",
+            command=self.on_ik_amp_slider_change
+        )
+        self.scale_ik_amp.set(0.03)
+        self.scale_ik_amp.pack(side="right", fill="x", expand=True, padx=8)
+
+        # IK Frequency Row
+        freq_row = ttk.Frame(self.ik_signal_frame)
+        freq_row.pack(fill="x", pady=6)
+
+        ttk.Label(freq_row, text="Frequency (Hz):", width=16).pack(side="left")
+        self.entry_ik_freq = ttk.Entry(freq_row)
+        self.entry_ik_freq.insert(0, "0.5")
+        self.entry_ik_freq.pack(side="right", fill="x", expand=True)
+
+        ttk.Label(
+            self.ik_signal_frame,
+            text="Simultaneously modulates X, Y, and Z around (-0.18, 0.00, 0.18) m",
+            font=("Helvetica", 9, "italic")
+        ).pack(pady=4)
+
+        # Common Start/Stop Button
         self.signal_btn = ttk.Button(self.tab_signals, text="Start Signal Generator", command=self.toggle_signal)
         self.signal_btn.pack(pady=15)
+
+    def on_fk_amp_slider_change(self, idx, val):
+        self.fk_amp_labels[idx].config(text=f"{float(val):.2f} rad")
+
+    def on_ik_amp_slider_change(self, val):
+        self.lbl_ik_amp_val.config(text=f"{float(val):.3f} m")
 
     def toggle_signal(self):
         if not self.node.signal_running:
@@ -273,45 +393,85 @@ class GUIApp:
             self.signal_btn.config(text="Start Signal Generator")
 
     def run_signal_loop(self):
-        try:
-            amp = float(self.entry_amp.get())
-            freq = float(self.entry_freq.get())
-        except ValueError:
-            amp, freq = 0.5, 0.5
-
         start_time = time.time()
         while self.node.signal_running:
             t = time.time() - start_time
-            val = amp * math.sin(2 * math.pi * freq * t)
 
             if self.mode_var.get() == "FK":
-                # Oscillates Joint 2 as an example:
-                angles = [0.0] * self.node.num_joints
-                angles[1] = val  # Joint 2 oscillation
-                self.node.dispatch_fk_command(angles)
-            else:
-                # Oscillates Z-height in Cartesian space:
-                self.node.dispatch_ik_command(0.3, 0.0, 0.3 + val)
+                # =============================================================
+                # FK MODE: EACH JOINT HAS ITS OWN AMPLITUDE & FREQUENCY
+                # =============================================================
+                angles = []
+                for i in range(self.node.num_joints):
+                    amp = float(self.fk_amp_scales[i].get())
+                    try:
+                        freq = float(self.fk_freq_entries[i].get())
+                    except ValueError:
+                        freq = 0.5
 
-            time.sleep(0.02)  # 50 Hz loop
+                    # Compute individual joint sinusoid in radians
+                    val_j = amp * math.sin(2.0 * math.pi * freq * t)
+
+                    # Clamp inside joint physical limits
+                    q_min, q_max = self.node.joint_limits[i]
+                    clamped_angle = max(q_min, min(q_max, val_j))
+                    angles.append(clamped_angle)
+
+                    if self.is_ready:
+                        self.sliders[f"Joint {i+1}"].set(clamped_angle)
+
+                self.node.dispatch_fk_command(angles)
+
+            else:
+                # =============================================================
+                # IK MODE: 3D CARTESIAN SINE WAVE ON X, Y, Z (METERS)
+                # =============================================================
+                amp = float(self.scale_ik_amp.get())
+                try:
+                    freq = float(self.entry_ik_freq.get())
+                except ValueError:
+                    freq = 0.5
+
+                omega = 2.0 * math.pi * freq * t
+
+                target_x = -0.18 + amp * math.sin(omega)
+                target_y =  0.00 + amp * math.cos(omega)
+                target_z =  0.18 + amp * math.sin(omega + math.pi / 4.0)
+
+                target_x = max(-0.25, min(-0.11, target_x))
+                target_y = max(-0.14, min( 0.14, target_y))
+                target_z = max( 0.06, min( 0.27, target_z))
+
+                if self.is_ready:
+                    self.sliders["X"].set(target_x)
+                    self.sliders["Y"].set(target_y)
+                    self.sliders["Z"].set(target_z)
+
+                self.node.dispatch_ik_command(target_x, target_y, target_z)
+
+            time.sleep(0.02)  # 50 Hz control rate
 
     def reset_all(self):
         self.node.signal_running = False
         self.signal_btn.config(text="Start Signal Generator")
-        for s in self.sliders.values():
-            s.set(0.0)
-        self.publish_from_sliders()
+        if self.mode_var.get() == "FK":
+            for i in range(self.node.num_joints):
+                self.sliders[f"Joint {i+1}"].set(0.0)
+            self.node.dispatch_fk_command([0.0] * self.node.num_joints)
+        else:
+            self.sliders["X"].set(-0.18)
+            self.sliders["Y"].set(0.00)
+            self.sliders["Z"].set(0.18)
+            self.node.dispatch_ik_command(-0.18, 0.0, 0.18)
 
 
 def main():
     rclpy.init()
     node = RobotGUINode()
 
-    # Run ROS 2 spin in background
     ros_thread = threading.Thread(target=rclpy.spin, args=(node,), daemon=True)
     ros_thread.start()
 
-    # Run Tkinter GUI
     root = tk.Tk()
     app = GUIApp(root, node)
     try:

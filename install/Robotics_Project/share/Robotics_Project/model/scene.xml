@@ -2,20 +2,98 @@
   <include file="low_cost_robot_arm.xml"/>
 
   <visual>
-    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <headlight diffuse="0.7 0.7 0.7" ambient="0.35 0.35 0.35" specular="0.1 0.1 0.1"/>
     <rgba haze="0.15 0.25 0.35 1"/>
-    <global azimuth="210" elevation="-20"/>
+    <global azimuth="215" elevation="-25"/>
   </visual>
 
   <asset>
     <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
     <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
       markrgb="0.8 0.8 0.8" width="300" height="300"/>
-    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.15"/>
+
+    <!-- Workstation & Equipment Materials -->
+    <material name="conveyor_frame" rgba="0.30 0.32 0.35 1" reflectance="0.3"/>
+    <material name="conveyor_belt" rgba="0.12 0.12 0.12 1" roughness="0.8"/>
+    <material name="inspection_nest_mat" rgba="0.95 0.95 0.98 1"/>
+    <material name="metal_silver" rgba="0.75 0.78 0.82 1" reflectance="0.6"/>
+
+    <!-- Color-Coded PCB Materials (Pass, Rework, Scrap) -->
+    <material name="pcb_pass" rgba="0.12 0.78 0.25 1" reflectance="0.3"/>    <!-- Green: PASS -->
+    <material name="pcb_rework" rgba="0.96 0.78 0.10 1" reflectance="0.3"/>  <!-- Yellow: REWORK -->
+    <material name="pcb_scrap" rgba="0.88 0.15 0.15 1" reflectance="0.3"/>   <!-- Red: SCRAP -->
+
+    <!-- Color-Coded Sorting Bin Materials -->
+    <material name="bin_pass_mat" rgba="0.15 0.65 0.25 1"/>
+    <material name="bin_rework_mat" rgba="0.85 0.70 0.10 1"/>
+    <material name="bin_scrap_mat" rgba="0.80 0.18 0.18 1"/>
   </asset>
 
   <worldbody>
-    <light pos="0 0 3" dir="0 0 -1" directional="false"/>
+    <light pos="0 0 2.5" dir="0 0 -1" diffuse="0.7 0.7 0.7" specular="0.2 0.2 0.2" directional="false"/>
+    <light pos="-0.18 0.0 0.40" dir="0 0 -1" diffuse="0.9 0.9 0.9" specular="0.4 0.4 0.4" cutoff="45" directional="false"/>
+    
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" pos="0 0 0" friction="0.1"/>
+
+    <!-- ================================================================= -->
+    <!-- 1. INDEXING CONVEYOR BELT & INSPECTION NEST                       -->
+    <!-- ================================================================= -->
+    <body name="conveyor_assembly" pos="-0.18 0.0 0">
+      <geom name="conveyor_base" type="box" size="0.034 0.22 0.012" pos="0 0 0.012" material="conveyor_frame"/>
+      <geom name="conveyor_track" type="box" size="0.028 0.218 0.002" pos="0 0 0.025" material="conveyor_belt"/>
+      <geom name="nest_plate" type="box" size="0.015 0.015 0.001" pos="0 0 0.027" material="inspection_nest_mat"/>
+      <geom name="nest_pin_1" type="box" size="0.0015 0.012 0.003" pos="-0.012 0 0.029" material="metal_silver"/>
+      <geom name="nest_pin_2" type="box" size="0.0015 0.012 0.003" pos="0.012 0 0.029" material="metal_silver"/>
+    </body>
+
+    <!-- ================================================================= -->
+    <!-- 2. SORTING BINS (Pass = Green, Rework = Yellow, Scrap = Red)      -->
+    <!-- ================================================================= -->
+    <!-- PASS BIN (Reachable at -0.10, -0.13) -->
+    <body name="bin_pass" pos="-0.10 -0.13 0">
+      <geom name="bin_pass_floor" type="box" size="0.022 0.022 0.004" pos="0 0 0.004" material="bin_pass_mat"/>
+      <geom name="bin_pass_w1" type="box" size="0.022 0.002 0.010" pos="0 0.020 0.014" material="bin_pass_mat"/>
+      <geom name="bin_pass_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_pass_mat"/>
+      <geom name="bin_pass_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_pass_mat"/>
+      <geom name="bin_pass_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_pass_mat"/>
+      <!-- Sample PCB in bin -->
+      <geom name="pcb_in_pass_bin" type="box" size="0.010 0.010 0.003" pos="0.002 0.002 0.008" material="pcb_pass"/>
+    </body>
+
+    <!-- REWORK BIN (Reachable at -0.10, +0.13) -->
+    <body name="bin_rework" pos="-0.10 0.13 0">
+      <geom name="bin_rework_floor" type="box" size="0.022 0.022 0.004" pos="0 0 0.004" material="bin_rework_mat"/>
+      <geom name="bin_rework_w1" type="box" size="0.022 0.002 0.010" pos="0 0.020 0.014" material="bin_rework_mat"/>
+      <geom name="bin_rework_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_rework_mat"/>
+      <geom name="bin_rework_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_rework_mat"/>
+      <geom name="bin_rework_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_rework_mat"/>
+      <!-- Sample PCB in bin -->
+      <geom name="pcb_in_rework_bin" type="box" size="0.010 0.010 0.003" pos="-0.002 0.001 0.008" material="pcb_rework"/>
+    </body>
+
+    <!-- SCRAP BIN (Outer front side, completely clear of conveyor) -->
+    <body name="bin_scrap" pos="-0.245 -0.09 0">
+      <geom name="bin_scrap_floor" type="box" size="0.022 0.022 0.004" pos="0 0 0.004" material="bin_scrap_mat"/>
+      <geom name="bin_scrap_w1" type="box" size="0.022 0.002 0.010" pos="0 0.020 0.014" material="bin_scrap_mat"/>
+      <geom name="bin_scrap_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_scrap_mat"/>
+      <geom name="bin_scrap_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_scrap_mat"/>
+      <geom name="bin_scrap_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_scrap_mat"/>
+      <!-- Sample PCB in bin -->
+      <geom name="pcb_in_scrap_bin" type="box" size="0.010 0.010 0.003" pos="0.001 -0.002 0.008" material="pcb_scrap"/>
+    </body>
+
+    <!-- ================================================================= -->
+    <!-- 3. PCBS ON CONVEYOR (Static geoms, zero impact on robot DOF)      -->
+    <!-- ================================================================= -->
+    <!-- Target PCB sitting on the Inspection Nest -->
+    <geom name="active_inspection_pcb" type="box" size="0.010 0.010 0.003" pos="-0.18 0.0 0.031" material="pcb_pass"/>
+
+    <!-- Queued PCB 1 (Incoming on conveyor at Y = +0.08) -->
+    <geom name="queued_pcb_rework" type="box" size="0.010 0.010 0.003" pos="-0.18 0.08 0.031" material="pcb_rework"/>
+
+    <!-- Queued PCB 2 (Incoming on conveyor at Y = +0.16) -->
+    <geom name="queued_pcb_scrap" type="box" size="0.010 0.010 0.003" pos="-0.18 0.16 0.031" material="pcb_scrap"/>
+
   </worldbody> 
 </mujoco>
