@@ -1,0 +1,5 @@
+scripts/fk_node.py                               - Forward Kinematics Code
+scripts/ik_node.py                               - Inverse Kinematics Code
+scripts/gui_node.py                              - GUI for Sliders and Such
+
+model/scene.xml                                  - Environment GUI
