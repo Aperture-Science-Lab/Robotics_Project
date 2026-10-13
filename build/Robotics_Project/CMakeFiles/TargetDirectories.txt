@@ -1,0 +1,10 @@
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/uninstall.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/Robotics_Project_uninstall.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/mujoco_node.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/test.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/edit_cache.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/rebuild_cache.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/list_install_components.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/install.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/install/local.dir
+/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/CMakeFiles/install/strip.dir

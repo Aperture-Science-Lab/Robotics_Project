@@ -1,0 +1,5 @@
+source;share/Robotics_Project/local_setup.bash
+source;share/Robotics_Project/local_setup.dsv
+source;share/Robotics_Project/local_setup.fish
+source;share/Robotics_Project/local_setup.sh
+source;share/Robotics_Project/local_setup.zsh

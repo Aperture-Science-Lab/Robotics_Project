@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

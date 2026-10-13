@@ -1,0 +1,98 @@
+[0.010s] Invoking command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project -DCMAKE_INSTALL_PREFIX=/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project
+[0.070s] -- The C compiler identification is GNU 15.2.0
+[0.130s] -- The CXX compiler identification is GNU 15.2.0
+[0.137s] -- Detecting C compiler ABI info
+[0.206s] -- Detecting C compiler ABI info - done
+[0.220s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.221s] -- Detecting C compile features
+[0.221s] -- Detecting C compile features - done
+[0.234s] -- Detecting CXX compiler ABI info
+[0.315s] -- Detecting CXX compiler ABI info - done
+[0.327s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.328s] -- Detecting CXX compile features
+[0.328s] -- Detecting CXX compile features - done
+[0.339s] -- Found ament_cmake: 2.8.8 (/opt/ros/lyrical/share/ament_cmake/cmake)
+[0.708s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.797s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.798s] -- Found Threads: TRUE
+[0.801s] -- Found rclcpp: 32.0.2 (/opt/ros/lyrical/share/rclcpp/cmake)
+[0.838s] -- Found rosidl_generator_c: 5.2.1 (/opt/ros/lyrical/share/rosidl_generator_c/cmake)
+[0.848s] -- Found rosidl_generator_cpp: 5.2.1 (/opt/ros/lyrical/share/rosidl_generator_cpp/cmake)
+[0.865s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.879s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.943s] -- Found rmw_implementation_cmake: 7.10.1 (/opt/ros/lyrical/share/rmw_implementation_cmake/cmake)
+[0.947s] -- Found rmw_fastrtps_cpp: 9.4.9 (/opt/ros/lyrical/share/rmw_fastrtps_cpp/cmake)
+[0.977s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.040s] -- Found sensor_msgs: 5.9.3 (/opt/ros/lyrical/share/sensor_msgs/cmake)
+[1.086s] -- Found ament_lint_auto: 0.20.6 (/opt/ros/lyrical/share/ament_lint_auto/cmake)
+[1.150s] WARNING: Package name "Robotics_Project" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+[1.189s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[1.189s] -- Configured cppcheck include dirs: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/include
+[1.189s] -- Configured cppcheck exclude dirs and/or files: 
+[1.191s] -- Added test 'flake8' to check Python code syntax and style conventions
+[1.191s] -- Configured 'flake8' exclude dirs and/or files: 
+[1.193s] -- Added test 'lint_cmake' to check CMake code style
+[1.195s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[1.201s] -- Added test 'uncrustify' to check C / C++ code style
+[1.201s] -- Configured uncrustify additional arguments: 
+[1.203s] -- Added test 'xmllint' to check XML markup files
+[1.205s] -- Configuring done (1.2s)
+[1.213s] -- Generating done (0.0s)
+[1.231s] -- Build files have been written to: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project
+[1.236s] Invoked command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project -DCMAKE_INSTALL_PREFIX=/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project
+[1.237s] Invoking command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project -- -j12 -l12
+[1.283s] [ 33%] [32mBuilding CXX object CMakeFiles/mujoco_node.dir/src/nodes/mujoco_node.cpp.o[0m
+[1.284s] [ 66%] [32mBuilding CXX object CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o[0m
+[7.716s] [100%] [1m[32mLinking CXX executable mujoco_node[0m
+[7.970s] [100%] Built target mujoco_node
+[7.983s] Invoked command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project -- -j12 -l12
+[7.996s] Invoking command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project
+[8.006s] -- Install configuration: ""
+[8.006s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node
+[8.009s] -- Set non-toolchain portion of runtime path of "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node" to ""
+[8.009s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/launch
+[8.009s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/launch/simulation.launch.py
+[8.009s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model
+[8.009s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/low_cost_robot_arm.xml
+[8.009s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/base_link.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_rotation.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_to_elbow.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_static_finger_collision_1.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_static_finger.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_motor.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_moving_finger_collision_1.stl
+[8.010s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_to_elbow_collision.stl
+[8.011s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_to_elbow_motor.stl
+[8.011s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_static_finger_motor.stl
+[8.011s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_rotation_motor.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_static_finger_collision_2.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_extension_motor.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_extension.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_moving_finger_collision_2.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_collision.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/base_link_collision.stl
+[8.012s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/base_link_motor.stl
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist.stl
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/gripper_moving_finger.stl
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/shoulder_rotation_collision.stl
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/assets/elbow_to_wrist_extension_collision.stl
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/model/scene.xml
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/gui_node.py
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/ament_index/resource_index/package_run_dependencies/Robotics_Project
+[8.013s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/ament_index/resource_index/parent_prefix_path/Robotics_Project
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/environment/ament_prefix_path.sh
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/environment/ament_prefix_path.dsv
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/environment/path.sh
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/environment/path.dsv
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/local_setup.bash
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/local_setup.fish
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/local_setup.sh
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/local_setup.zsh
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/local_setup.dsv
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/package.dsv
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/ament_index/resource_index/packages/Robotics_Project
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/cmake/Robotics_ProjectConfig.cmake
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/cmake/Robotics_ProjectConfig-version.cmake
+[8.014s] -- Installing: /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project/share/Robotics_Project/package.xml
+[8.016s] Invoked command in '/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ali/my_stuff/robotics_project/ros2_ws/install/rqt_controller_manager:/home/ali/my_stuff/robotics_project/ros2_ws/install/ros2controlcli:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project

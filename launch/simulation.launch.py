@@ -5,7 +5,8 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    directory = get_package_share_directory('Robotics_Project')                                          # Gets relative path of Robotics_Project package    
+    # Gets path of the Robotics_Project package share directory
+    directory = get_package_share_directory('Robotics_Project')                                          
     
     xmlScenePath = os.path.join(directory, 'model', 'scene.xml')
     
@@ -21,7 +22,7 @@ def generate_launch_description():
         parameters = [   
                         {"joint_state_topic_name" : "joint_state"},
                         {"joint_command_topic_name" : "joint_commands"},
-                        {"control_mode" : "POSITION"},                      # Set to POSITION for direct angle control
+                        {"control_mode" : "POSITION"},
                         {"simulation_frequency" : 1000},
                         {"visualisation_frequency" : 20},
                         {"camera_focal_point": [0.0, 0.0, 0.25]},
@@ -39,4 +40,29 @@ def generate_launch_description():
         output     = "screen"
     )
 
-    return LaunchDescription([mujoco, gui])
+    # 3. Forward Kinematics Node (computes and publishes /current_ee_pose)
+    fk = Node(
+        package    = "Robotics_Project",
+        executable = "fk_node.py",
+        output     = "screen",
+        remappings = [
+            ('/joint_states', '/joint_state')  # Remap to match MuJoCo parameter
+        ]
+    )
+
+    # 4. Inverse Kinematics Node (computes and publishes to /joint_commands)
+    ik = Node(
+        package    = "Robotics_Project",
+        executable = "ik_node.py",
+        output     = "screen",
+        remappings = [
+            ('/joint_states', '/joint_state')  # Remap to match MuJoCo parameter
+        ]
+    )
+
+    return LaunchDescription([
+        mujoco,
+        fk,
+        ik,
+        gui
+    ])

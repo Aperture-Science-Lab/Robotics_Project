@@ -1,0 +1,8 @@
+source;share/Robotics_Project/hook/cmake_prefix_path.ps1
+source;share/Robotics_Project/hook/cmake_prefix_path.dsv
+source;share/Robotics_Project/hook/cmake_prefix_path.sh
+source;share/Robotics_Project/local_setup.bash
+source;share/Robotics_Project/local_setup.dsv
+source;share/Robotics_Project/local_setup.ps1
+source;share/Robotics_Project/local_setup.sh
+source;share/Robotics_Project/local_setup.zsh

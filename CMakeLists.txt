@@ -44,7 +44,14 @@ install(TARGETS mujoco_node
 install(DIRECTORY launch
                   model
         DESTINATION share/${PROJECT_NAME})                                                          # Install so ROS2 can find them
-                                              
+
+# Install all Python nodes so ROS2 can find them as executables
+install(PROGRAMS
+  scripts/gui_node.py
+  scripts/fk_node.py
+  scripts/ik_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 ###############################################################################################################################################
 
 if(BUILD_TESTING)
@@ -58,10 +65,5 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-install(PROGRAMS
-  scripts/gui_node.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 
 ament_package()
