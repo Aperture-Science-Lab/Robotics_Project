@@ -147,9 +147,35 @@ def compute_jacobian(q):
     Returns a 3x7 numpy array mapping joint velocities to
     linear end-effector velocities (x, y, z) in the base frame.
     """
-    # TODO
-    pass
+    J = np.zeros((3, 7))
+    
+    # Store intermediate transforms; start with base frame (Identity) the thingy that has the dignal diggers
+    T = np.eye(4)
+    transforms = [T.copy()]
+    
+    # Forward kinematics pass accumulating intermediate matrices 
+    for i in range(7):
+        alpha, a, d = DH_PARAMS[i]
+        theta = q[i]
+        T_i = dh_transform(alpha, a, d, theta)
+        T = T @ T_i
+        transforms.append(T.copy())
+        
+    # Apply final hand transform to get end-effector position
+    T_hand = T @ T_L7_HAND
+    p_ee = T_hand[:3, 3]
+    
+    # Compute each column of the linear Jacobian using the cross product
+    for i in range(7):
+        #transforms[i] represents the frame before joint i (T_{i-1})
+        z_axis = transforms[i][:3, 2]  # Third column is the Z rotation axis
+        p_joint = transforms[i][:3, 3] # Last column is the translation origin
+        
+        J[:, i] = np.cross(z_axis, p_ee - p_joint)
+        
+    return J
 
+EPS = 1e-5
 
 def compute_jacobian_dot(q, dq):
     """
@@ -161,8 +187,9 @@ def compute_jacobian_dot(q, dq):
     Returns a 3x7 numpy array. Analytical or numerical,
     your choice.
     """
-    # TODO
-    pass
+    J_plus = compute_jacobian(q + EPS * dq)
+    J_minus = compute_jacobian(q - EPS * dq)
+    return (J_plus - J_minus) / (2 * EPS)
 
 
 def plan_trajectory(q_start, q_end, T, dt):
@@ -182,8 +209,28 @@ def plan_trajectory(q_start, q_end, T, dt):
         dq_array: (N, 7) array of joint velocities.
         ddq_array:(N, 7) array of joint accelerations.
     """
-    # TODO
-    pass
+    #like in the tutorial 06 so that is why i am a lazzy person so i will use it teach a man how to fish ts this is joint space my diggers
+    #q(t) = c_0 + c_1 t + c_2 t^2 + c_3 t^3 + c_4 t^4 + c_5 t^5
+    #dot{q}(t) = c_1 + 2c_2 t + 3c_3 t^2 + 4c_4 t^3 + 5c_5 t^4
+    #ddot{q}(t) = 2c_2 + 6c_3 t + 12c_4 t^2 + 20c_5 t^3
+    #since q(0) = q_start, dot{q}(0) = 0, ddot{q}(0) = 0, q(T) = q_end, dot{q}(T) = 0, ddot{q}(T) = 0
+    #we can solve for the coefficients c_0, c_1, c_2 like my diggers c_0 = q_start, c_1 = 0, c_2 = 0,
+    #c_3 = 10*(q_end - q_start)/T^3, c_4 = -15*(q_end - q_start)/T^4, c_5 = 6*(q_end - q_start)/T^5
+    t = np.arange(0, T + dt / 2, dt)
+    delta_q = q_end - q_start
+    
+    c3 = 10 * delta_q / (T ** 3)
+    c4 = -15 * delta_q / (T ** 4)
+    c5 = 6 * delta_q / (T ** 5)
+    
+    #Reshape t to (N, 1) for clean broadcasting with (7,) coefficients
+    t_col = t[:, np.newaxis]
+    
+    q_array = q_start + c3 * (t_col**3) + c4 * (t_col**4) + c5 * (t_col**5)
+    dq_array = 3 * c3 * (t_col**2) + 4 * c4 * (t_col**3) + 5 * c5 * (t_col**4)
+    ddq_array = 6 * c3 * t_col + 12 * c4 * (t_col**2) + 20 * c5 * (t_col**3)
+    
+    return t, q_array, dq_array, ddq_array
 
 
 # ==========================================================
