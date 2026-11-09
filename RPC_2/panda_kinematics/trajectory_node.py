@@ -163,7 +163,7 @@ def compute_jacobian(q):
         
     # Apply final hand transform to get end-effector position
     T_hand = T @ T_L7_HAND
-    p_ee = T_hand[:3, 3]
+    p_ee = T_hand[:3, 3] 
     
     # Compute each column of the linear Jacobian using the cross product
     for i in range(7):
