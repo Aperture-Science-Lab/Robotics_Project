@@ -1,0 +1,14 @@
+WARNING: Package name "Robotics_Project" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+CMake Error: failed to create symbolic link '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node': Operation not permitted
+[31mCMake Error at ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:307 (message):
+  Could not create symlink
+  '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node'
+  pointing to
+  '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project/mujoco_node'
+Call Stack (most recent call first):
+  ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:269 (_ament_cmake_symlink_install_create_symlink)
+  ament_cmake_symlink_install_targets_0_.cmake:1 (ament_cmake_symlink_install_targets)
+  ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:319 (include)
+  cmake_install.cmake:46 (include)
+
+[0m

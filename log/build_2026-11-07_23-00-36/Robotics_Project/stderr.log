@@ -1,0 +1,24 @@
+WARNING: Package name "Robotics_Project" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+[01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:[m[K In function ‘[01m[Kvoid[01;32m[K mouse_move_callback[m[K(GLFWwindow*, double, double)[m[K’:
+[01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:65:63:[m[K [01;31m[Kerror: [m[Kcannot convert ‘[01m[KmjvCamera*[m[K’ {aka ‘[01m[KmjvCamera_*[m[K’} to ‘[01m[Kconst mjvScene*[m[K’ {aka ‘[01m[Kconst mjvScene_*[m[K’}
+   65 |     mjv_moveCamera(g_model, action, dx / height, dy / height, [01;31m[Kg_camera[m[K);
+      |                                                               [01;31m[K^~~~~~~~[m[K
+      |                                                               [01;31m[K|[m[K
+      |                                                               [01;31m[KmjvCamera* {aka mjvCamera_*}[m[K
+In file included from [01m[K/mnt/d/Robotics_project/Robotics_Project/include/mujoco_ros2/mujoco_ros.hpp:24[m[K,
+                 from [01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:10[m[K:
+[01m[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mujoco.h:613:43:[m[K [01;36m[Knote: [m[K  initializing argument 5 of ‘[01m[Kvoid[01;32m[K mjv_moveCamera[m[K(const mjModel*, int, mjtNum, mjtNum, const mjvScene*, mjvCamera*)[m[K’
+  613 |                           [01;36m[Kconst mjvScene* scn[m[K, mjvCamera* cam);
+      |                           [01;36m[K~~~~~~~~~~~~~~~~^~~[m[K
+[01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:[m[K In function ‘[01m[Kvoid[01;32m[K scroll_callback[m[K(GLFWwindow*, double, double)[m[K’:
+[01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:75:65:[m[K [01;31m[Kerror: [m[Kcannot convert ‘[01m[KmjvCamera*[m[K’ {aka ‘[01m[KmjvCamera_*[m[K’} to ‘[01m[Kconst mjvScene*[m[K’ {aka ‘[01m[Kconst mjvScene_*[m[K’}
+   75 |     mjv_moveCamera(g_model, mjMOUSE_ZOOM, 0.0, -0.05 * yoffset, [01;31m[Kg_camera[m[K);
+      |                                                                 [01;31m[K^~~~~~~~[m[K
+      |                                                                 [01;31m[K|[m[K
+      |                                                                 [01;31m[KmjvCamera* {aka mjvCamera_*}[m[K
+[01m[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mujoco.h:613:43:[m[K [01;36m[Knote: [m[K  initializing argument 5 of ‘[01m[Kvoid[01;32m[K mjv_moveCamera[m[K(const mjModel*, int, mjtNum, mjtNum, const mjvScene*, mjvCamera*)[m[K’
+  613 |                           [01;36m[Kconst mjvScene* scn[m[K, mjvCamera* cam);
+      |                           [01;36m[K~~~~~~~~~~~~~~~~^~~[m[K
+gmake[2]: *** [CMakeFiles/mujoco_node.dir/build.make:90: CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:137: CMakeFiles/mujoco_node.dir/all] Error 2
+gmake: *** [Makefile:146: all] Error 2

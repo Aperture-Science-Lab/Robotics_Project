@@ -1,0 +1,44 @@
+-- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+-- Override CMake install command with custom implementation using symlinks instead of copying resources
+-- Found rclcpp: 28.1.22 (/opt/ros/jazzy/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+-- Found rosidl_generator_cpp: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 7.3.4 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+-- Found rmw_fastrtps_cpp: 8.4.4 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Found sensor_msgs: 5.3.8 (/opt/ros/jazzy/share/sensor_msgs/cmake)
+-- Found ament_lint_auto: 0.17.5 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+WARNING: Package name "Robotics_Project" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+-- Added test 'cppcheck' to perform static code analysis on C / C++ code
+-- Configured cppcheck include dirs: /mnt/d/Robotics_project/Robotics_Project/include
+-- Configured cppcheck exclude dirs and/or files: 
+-- Added test 'flake8' to check Python code syntax and style conventions
+-- Configured 'flake8' exclude dirs and/or files: 
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+-- Added test 'uncrustify' to check C / C++ code style
+-- Configured uncrustify additional arguments: 
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done (101.6s)
+-- Generating done (1.5s)
+-- Build files have been written to: /mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project
+[ 33%] [32m[1mLinking CXX executable mujoco_node[0m
+[100%] Built target mujoco_node
+-- Install configuration: ""
+-- Execute custom install script
+-- Symlinking: /mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node
+CMake Error: failed to create symbolic link '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node': Operation not permitted
+[31mCMake Error at ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:307 (message):
+  Could not create symlink
+  '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node'
+  pointing to
+  '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project/mujoco_node'
+Call Stack (most recent call first):
+  ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:269 (_ament_cmake_symlink_install_create_symlink)
+  ament_cmake_symlink_install_targets_0_.cmake:1 (ament_cmake_symlink_install_targets)
+  ament_cmake_symlink_install/ament_cmake_symlink_install.cmake:319 (include)
+  cmake_install.cmake:46 (include)
+
+[0m

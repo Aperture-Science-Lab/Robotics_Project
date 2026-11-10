@@ -2,7 +2,7 @@
 # ament_cmake_core/cmake/uninstall_target/ament_cmake_uninstall_target.cmake.in
 
 function(ament_cmake_uninstall_target_remove_empty_directories path)
-  set(install_space "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/install/Robotics_Project")
+  set(install_space "/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project")
   if(install_space STREQUAL "")
     message(FATAL_ERROR "The CMAKE_INSTALL_PREFIX variable must not be empty")
   endif()
@@ -29,7 +29,7 @@ function(ament_cmake_uninstall_target_remove_empty_directories path)
 endfunction()
 
 # uninstall files installed using the standard install() function
-set(install_manifest "/home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/build/Robotics_Project/install_manifest.txt")
+set(install_manifest "/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project/install_manifest.txt")
 if(NOT EXISTS "${install_manifest}")
   message(FATAL_ERROR "Cannot find install manifest: ${install_manifest}")
 endif()
@@ -55,3 +55,6 @@ endforeach()
 message(STATUS "Execute custom uninstall script")
 
 # begin of custom uninstall code
+
+# uninstall files installed using the symlink install functions
+include("/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project/ament_cmake_symlink_install/ament_cmake_symlink_install_uninstall_script.cmake")

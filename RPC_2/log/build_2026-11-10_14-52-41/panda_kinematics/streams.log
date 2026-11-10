@@ -1,0 +1,21 @@
+[6.862s] Invoking command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data
+[9.871s] running egg_info
+[9.935s] writing build/panda_kinematics/panda_kinematics.egg-info/PKG-INFO
+[9.960s] writing dependency_links to build/panda_kinematics/panda_kinematics.egg-info/dependency_links.txt
+[9.984s] writing entry points to build/panda_kinematics/panda_kinematics.egg-info/entry_points.txt
+[10.007s] writing requirements to build/panda_kinematics/panda_kinematics.egg-info/requires.txt
+[10.020s] writing top-level names to build/panda_kinematics/panda_kinematics.egg-info/top_level.txt
+[10.282s] reading manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'
+[10.516s] writing manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'
+[10.530s] running build
+[10.533s] running build_py
+[10.871s] running install
+[10.903s] running install_lib
+[11.735s] running install_data
+[11.825s] running install_egg_info
+[11.927s] removing '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics-0.0.0-py3.12.egg-info' (and everything under it)
+[12.172s] Copying build/panda_kinematics/panda_kinematics.egg-info to /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics-0.0.0-py3.12.egg-info
+[13.058s] running install_scripts
+[14.217s] Installing kinematics script to /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/panda_kinematics
+[14.291s] writing list of installed files to '/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log'
+[14.380s] Invoked command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2' returned '0': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data

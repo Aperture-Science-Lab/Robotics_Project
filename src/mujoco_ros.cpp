@@ -11,6 +11,7 @@
 
 // Static pointers and state for mouse navigation callbacks
 static mjModel*   g_model  = nullptr;
+static mjvScene* g_scene = nullptr;
 static mjvCamera* g_camera = nullptr;
 
 static bool   g_button_left   = false;
@@ -35,7 +36,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 static void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (!g_button_left && !g_button_middle && !g_button_right) return;
-    if (!g_model || !g_camera) return;
+    if (!g_model || !g_scene || !g_camera) return;
 
     double dx = xpos - g_lastx;
     double dy = ypos - g_lasty;
@@ -62,7 +63,7 @@ static void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
         action = mjMOUSE_ZOOM;
     }
 
-    mjv_moveCamera(g_model, action, dx / height, dy / height, g_camera);
+    mjv_moveCamera(g_model, action, dx / height, dy / height, g_scene, g_camera);
 }
 
 // Mouse scroll callback (zoom in / out)
@@ -70,9 +71,9 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     (void)window;
     (void)xoffset;
-    if (!g_model || !g_camera) return;
+    if (!g_model || !g_scene || !g_camera) return;
 
-    mjv_moveCamera(g_model, mjMOUSE_ZOOM, 0.0, -0.05 * yoffset, g_camera);
+    mjv_moveCamera(g_model, mjMOUSE_ZOOM, 0.0, -0.05 * yoffset, g_scene, g_camera);
 }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +155,7 @@ MuJoCoROS::MuJoCoROS(const std::string &xmlLocation) : Node("mujoco_node")
 
     // Connect mouse callbacks to window
     g_model  = _model;
+    g_scene = &_scene;
     g_camera = &_camera;
 
     glfwSetMouseButtonCallback(_window, mouse_button_callback);

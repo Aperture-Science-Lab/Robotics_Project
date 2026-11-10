@@ -1,0 +1,16 @@
+WARNING: Package name "Robotics_Project" does not follow the naming conventions. It should start with a lower case letter and only contain lower case letters, digits, underscores, and dashes.
+In file included from [01m[K/mnt/d/Robotics_project/Robotics_Project/src/nodes/mujoco_node.cpp:19[m[K:
+[01m[K/mnt/d/Robotics_project/Robotics_Project/include/mujoco_ros2/mujoco_ros.hpp:24:10:[m[K [01;31m[Kfatal error: [m[Kmujoco/mujoco.h: No such file or directory
+   24 | #include [01;31m[K<mujoco/mujoco.h>[m[K                                                                          // Dynamic simulation library
+      |          [01;31m[K^~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:10[m[K:
+[01m[K/mnt/d/Robotics_project/Robotics_Project/include/mujoco_ros2/mujoco_ros.hpp:24:10:[m[K [01;31m[Kfatal error: [m[Kmujoco/mujoco.h: No such file or directory
+   24 | #include [01;31m[K<mujoco/mujoco.h>[m[K                                                                          // Dynamic simulation library
+      |          [01;31m[K^~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+compilation terminated.
+gmake[2]: *** [CMakeFiles/mujoco_node.dir/build.make:76: CMakeFiles/mujoco_node.dir/src/nodes/mujoco_node.cpp.o] Error 1
+gmake[2]: *** Waiting for unfinished jobs....
+gmake[2]: *** [CMakeFiles/mujoco_node.dir/build.make:90: CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:137: CMakeFiles/mujoco_node.dir/all] Error 2
+gmake: *** [Makefile:146: all] Error 2

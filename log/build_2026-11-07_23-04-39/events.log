@@ -1,0 +1,168 @@
+[0.000000] (-) TimerEvent: {}
+[0.000665] (Robotics_Project) JobQueued: {'identifier': 'Robotics_Project', 'dependencies': OrderedDict()}
+[0.001433] (Robotics_Project) JobStarted: {'identifier': 'Robotics_Project'}
+[0.097350] (-) TimerEvent: {}
+[0.171083] (Robotics_Project) JobProgress: {'identifier': 'Robotics_Project', 'progress': 'cmake'}
+[0.197468] (-) TimerEvent: {}
+[0.205381] (Robotics_Project) JobProgress: {'identifier': 'Robotics_Project', 'progress': 'build'}
+[0.214841] (Robotics_Project) Command: {'cmd': ['/usr/bin/cmake', '--build', '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project', '--', '-j20', '-l20'], 'cwd': '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project', 'env': OrderedDict({'LESSOPEN': '| /usr/bin/lesspipe %s', 'MESA_D3D12_DEFAULT_ADAPTER_NAME': 'NVIDIA', 'USER': 'victustrio', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib:/home/victustrio/.mujoco/mujoco-3.2.0/lib::/opt/mujoco/lib', 'HOME': '/home/victustrio', 'OLDPWD': '/mnt/d/Robotics_project/Robotics_Project', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'COLCON_PREFIX_PATH': '/mnt/d/Robotics_project/Robotics_Project/install:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'victustrio', 'NAME': 'DESKTOP-0G5QBEE', 'WSL_INTEROP': '/run/WSL/363_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/jazzy/bin:/home/victustrio/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/usr/lib/linux-tools/6.18.54.1-microsoft-standard-WSL2/bin:/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_3.0.3.0_x64__8wekyb3d8bbwe:/mnt/c/Program Files/Microsoft/jdk-21.0.12.101-hotspot/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/WSL/:/mnt/c/Program Files/MATLAB/R2026b/bin:/mnt/c/Users/Victus/.local/bin:/mnt/c/Users/Victus/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Victus/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Program Files/Microsoft/jdk-21.0.12.101-hotspot/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/Victus/AppData/Local/Python/bin:/snap/bin', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'PERF_EXEC_PATH': '/usr/lib/linux-tools/6.18.54.1-microsoft-standard-WSL2/libexec/perf-core', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'AMENT_PREFIX_PATH': '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project:/opt/ros/jazzy:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'GALLIUM_DRIVER': 'd3d12', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/opt/ros/jazzy/opt/gz_math_vendor/lib/python:/opt/ros/jazzy/lib/python3.12/site-packages:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor:/opt/ros/jazzy:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics', 'WSLENV': ''}), 'shell': False}
+[0.297605] (-) TimerEvent: {}
+[0.407209] (-) TimerEvent: {}
+[0.511376] (-) TimerEvent: {}
+[0.613940] (-) TimerEvent: {}
+[0.720024] (-) TimerEvent: {}
+[0.823359] (-) TimerEvent: {}
+[0.926351] (-) TimerEvent: {}
+[1.028068] (-) TimerEvent: {}
+[1.131545] (-) TimerEvent: {}
+[1.232740] (-) TimerEvent: {}
+[1.333457] (-) TimerEvent: {}
+[1.434909] (-) TimerEvent: {}
+[1.535582] (-) TimerEvent: {}
+[1.636599] (-) TimerEvent: {}
+[1.737497] (-) TimerEvent: {}
+[1.838121] (-) TimerEvent: {}
+[1.943597] (-) TimerEvent: {}
+[2.045294] (-) TimerEvent: {}
+[2.146469] (-) TimerEvent: {}
+[2.247261] (-) TimerEvent: {}
+[2.349327] (-) TimerEvent: {}
+[2.450525] (-) TimerEvent: {}
+[2.551159] (-) TimerEvent: {}
+[2.651925] (-) TimerEvent: {}
+[2.752595] (-) TimerEvent: {}
+[2.853222] (-) TimerEvent: {}
+[2.954409] (-) TimerEvent: {}
+[3.062238] (-) TimerEvent: {}
+[3.162953] (-) TimerEvent: {}
+[3.264867] (-) TimerEvent: {}
+[3.365759] (-) TimerEvent: {}
+[3.467298] (-) TimerEvent: {}
+[3.568735] (-) TimerEvent: {}
+[3.592655] (Robotics_Project) StdoutLine: {'line': b'[ 33%] \x1b[32mBuilding CXX object CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o\x1b[0m\n'}
+[3.668821] (-) TimerEvent: {}
+[3.769440] (-) TimerEvent: {}
+[3.870323] (-) TimerEvent: {}
+[3.972494] (-) TimerEvent: {}
+[4.074914] (-) TimerEvent: {}
+[4.176729] (-) TimerEvent: {}
+[4.279008] (-) TimerEvent: {}
+[4.380348] (-) TimerEvent: {}
+[4.481377] (-) TimerEvent: {}
+[4.596348] (-) TimerEvent: {}
+[4.697564] (-) TimerEvent: {}
+[4.799034] (-) TimerEvent: {}
+[4.899533] (-) TimerEvent: {}
+[5.000217] (-) TimerEvent: {}
+[5.101469] (-) TimerEvent: {}
+[5.202274] (-) TimerEvent: {}
+[5.303101] (-) TimerEvent: {}
+[5.403731] (-) TimerEvent: {}
+[5.504576] (-) TimerEvent: {}
+[5.605212] (-) TimerEvent: {}
+[5.706159] (-) TimerEvent: {}
+[5.807725] (-) TimerEvent: {}
+[5.908626] (-) TimerEvent: {}
+[6.009523] (-) TimerEvent: {}
+[6.110781] (-) TimerEvent: {}
+[6.212183] (-) TimerEvent: {}
+[6.312954] (-) TimerEvent: {}
+[6.414366] (-) TimerEvent: {}
+[6.515523] (-) TimerEvent: {}
+[6.616831] (-) TimerEvent: {}
+[6.718259] (-) TimerEvent: {}
+[6.819987] (-) TimerEvent: {}
+[6.921523] (-) TimerEvent: {}
+[7.025996] (-) TimerEvent: {}
+[7.127580] (-) TimerEvent: {}
+[7.228717] (-) TimerEvent: {}
+[7.329876] (-) TimerEvent: {}
+[7.431668] (-) TimerEvent: {}
+[7.532946] (-) TimerEvent: {}
+[7.634426] (-) TimerEvent: {}
+[7.685559] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:14:39:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kconversion from \xe2\x80\x98\x1b[01m\x1b[Kstd::nullptr_t\x1b[m\x1b[K\xe2\x80\x99 to non-scalar type \xe2\x80\x98\x1b[01m\x1b[KmjvCamera\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_\x1b[m\x1b[K\xe2\x80\x99} requested\n'}
+[7.687978] (Robotics_Project) StderrLine: {'line': b'   14 | static mjvCamera* g_scene, g_camera = \x1b[01;31m\x1b[Knullptr\x1b[m\x1b[K;\n'}
+[7.690955] (Robotics_Project) StderrLine: {'line': b'      |                                       \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K\n'}
+[7.693091] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:\x1b[m\x1b[K In function \xe2\x80\x98\x1b[01m\x1b[Kvoid\x1b[01;32m\x1b[K mouse_move_callback\x1b[m\x1b[K(GLFWwindow*, double, double)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[7.694422] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:38:18:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kleft operand of comma operator has no effect [\x1b[01;35m\x1b[K\x1b]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-value\x07-Wunused-value\x1b]8;;\x07\x1b[m\x1b[K]\n'}
+[7.695984] (Robotics_Project) StderrLine: {'line': b'   38 |     if (\x1b[01;35m\x1b[K!g_model || !g_scene\x1b[m\x1b[K, g_camera) return;\n'}
+[7.697593] (Robotics_Project) StderrLine: {'line': b'      |         \x1b[01;35m\x1b[K~~~~~~~~~^~~~~~~~~~~\x1b[m\x1b[K\n'}
+[7.699892] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:38:29:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kcould not convert \xe2\x80\x98\x1b[01m\x1b[K((void)0, g_camera)\x1b[m\x1b[K\xe2\x80\x99 from \xe2\x80\x98\x1b[01m\x1b[KmjvCamera\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[Kbool\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.701069] (Robotics_Project) StderrLine: {'line': b'   38 |     if (\x1b[01;31m\x1b[K!g_model || !g_scene, g_camera\x1b[m\x1b[K) return;\n'}
+[7.702634] (Robotics_Project) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~\x1b[m\x1b[K\n'}
+[7.704510] (Robotics_Project) StderrLine: {'line': b'      |                             \x1b[01;31m\x1b[K|\x1b[m\x1b[K\n'}
+[7.705918] (Robotics_Project) StderrLine: {'line': b'      |                             \x1b[01;31m\x1b[KmjvCamera {aka mjvCamera_}\x1b[m\x1b[K\n'}
+[7.707395] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:65:63:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kcannot convert \xe2\x80\x98\x1b[01m\x1b[KmjvCamera*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_*\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[Kconst mjvScene*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[Kconst mjvScene_*\x1b[m\x1b[K\xe2\x80\x99}\n'}
+[7.708903] (Robotics_Project) StderrLine: {'line': b'   65 |     mjv_moveCamera(g_model, action, dx / height, dy / height, \x1b[01;31m\x1b[Kg_scene\x1b[m\x1b[K, g_camera);\n'}
+[7.710613] (Robotics_Project) StderrLine: {'line': b'      |                                                               \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K\n'}
+[7.712436] (Robotics_Project) StderrLine: {'line': b'      |                                                               \x1b[01;31m\x1b[K|\x1b[m\x1b[K\n'}
+[7.715157] (Robotics_Project) StderrLine: {'line': b'      |                                                               \x1b[01;31m\x1b[KmjvCamera* {aka mjvCamera_*}\x1b[m\x1b[K\n'}
+[7.716828] (Robotics_Project) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/include/mujoco_ros2/mujoco_ros.hpp:24\x1b[m\x1b[K,\n'}
+[7.718262] (Robotics_Project) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:10\x1b[m\x1b[K:\n'}
+[7.719348] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mujoco.h:613:43:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  initializing argument 5 of \xe2\x80\x98\x1b[01m\x1b[Kvoid\x1b[01;32m\x1b[K mjv_moveCamera\x1b[m\x1b[K(const mjModel*, int, mjtNum, mjtNum, const mjvScene*, mjvCamera*)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.720510] (Robotics_Project) StderrLine: {'line': b'  613 |                           \x1b[01;36m\x1b[Kconst mjvScene* scn\x1b[m\x1b[K, mjvCamera* cam);\n'}
+[7.721914] (Robotics_Project) StderrLine: {'line': b'      |                           \x1b[01;36m\x1b[K~~~~~~~~~~~~~~~~^~~\x1b[m\x1b[K\n'}
+[7.723547] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:\x1b[m\x1b[K In function \xe2\x80\x98\x1b[01m\x1b[Kvoid\x1b[01;32m\x1b[K scroll_callback\x1b[m\x1b[K(GLFWwindow*, double, double)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[7.725121] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:73:18:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kleft operand of comma operator has no effect [\x1b[01;35m\x1b[K\x1b]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-value\x07-Wunused-value\x1b]8;;\x07\x1b[m\x1b[K]\n'}
+[7.726822] (Robotics_Project) StderrLine: {'line': b'   73 |     if (\x1b[01;35m\x1b[K!g_model || !g_scene\x1b[m\x1b[K, g_camera) return;\n'}
+[7.729148] (Robotics_Project) StderrLine: {'line': b'      |         \x1b[01;35m\x1b[K~~~~~~~~~^~~~~~~~~~~\x1b[m\x1b[K\n'}
+[7.730806] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:73:29:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kcould not convert \xe2\x80\x98\x1b[01m\x1b[K((void)0, g_camera)\x1b[m\x1b[K\xe2\x80\x99 from \xe2\x80\x98\x1b[01m\x1b[KmjvCamera\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[Kbool\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.731979] (Robotics_Project) StderrLine: {'line': b'   73 |     if (\x1b[01;31m\x1b[K!g_model || !g_scene, g_camera\x1b[m\x1b[K) return;\n'}
+[7.733090] (Robotics_Project) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~\x1b[m\x1b[K\n'}
+[7.734595] (-) TimerEvent: {}
+[7.734999] (Robotics_Project) StderrLine: {'line': b'      |                             \x1b[01;31m\x1b[K|\x1b[m\x1b[K\n'}
+[7.736323] (Robotics_Project) StderrLine: {'line': b'      |                             \x1b[01;31m\x1b[KmjvCamera {aka mjvCamera_}\x1b[m\x1b[K\n'}
+[7.737769] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:75:65:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kcannot convert \xe2\x80\x98\x1b[01m\x1b[KmjvCamera*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_*\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[Kconst mjvScene*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[Kconst mjvScene_*\x1b[m\x1b[K\xe2\x80\x99}\n'}
+[7.738979] (Robotics_Project) StderrLine: {'line': b'   75 |     mjv_moveCamera(g_model, mjMOUSE_ZOOM, 0.0, -0.05 * yoffset, \x1b[01;31m\x1b[Kg_scene\x1b[m\x1b[K, g_camera);\n'}
+[7.740453] (Robotics_Project) StderrLine: {'line': b'      |                                                                 \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K\n'}
+[7.742177] (Robotics_Project) StderrLine: {'line': b'      |                                                                 \x1b[01;31m\x1b[K|\x1b[m\x1b[K\n'}
+[7.743973] (Robotics_Project) StderrLine: {'line': b'      |                                                                 \x1b[01;31m\x1b[KmjvCamera* {aka mjvCamera_*}\x1b[m\x1b[K\n'}
+[7.745275] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mujoco.h:613:43:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  initializing argument 5 of \xe2\x80\x98\x1b[01m\x1b[Kvoid\x1b[01;32m\x1b[K mjv_moveCamera\x1b[m\x1b[K(const mjModel*, int, mjtNum, mjtNum, const mjvScene*, mjvCamera*)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.746802] (Robotics_Project) StderrLine: {'line': b'  613 |                           \x1b[01;36m\x1b[Kconst mjvScene* scn\x1b[m\x1b[K, mjvCamera* cam);\n'}
+[7.748023] (Robotics_Project) StderrLine: {'line': b'      |                           \x1b[01;36m\x1b[K~~~~~~~~~~~~~~~~^~~\x1b[m\x1b[K\n'}
+[7.749281] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:\x1b[m\x1b[K In constructor \xe2\x80\x98\x1b[01m\x1b[KMuJoCoROS::\x1b[01;32m\x1b[KMuJoCoROS\x1b[m\x1b[K(const std::string&)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[7.750741] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/mnt/d/Robotics_project/Robotics_Project/src/mujoco_ros.cpp:157:26:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kno match for \xe2\x80\x98\x1b[01m\x1b[Koperator=\x1b[m\x1b[K\xe2\x80\x99 (operand types are \xe2\x80\x98\x1b[01m\x1b[KmjvCamera\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_\x1b[m\x1b[K\xe2\x80\x99} and \xe2\x80\x98\x1b[01m\x1b[KmjvCamera*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_*\x1b[m\x1b[K\xe2\x80\x99})\n'}
+[7.751892] (Robotics_Project) StderrLine: {'line': b'  157 |     g_scene, g_camera = &\x1b[01;31m\x1b[K_camera\x1b[m\x1b[K;\n'}
+[7.753192] (Robotics_Project) StderrLine: {'line': b'      |                          \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K\n'}
+[7.754662] (Robotics_Project) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mjplugin.h:21\x1b[m\x1b[K,\n'}
+[7.756014] (Robotics_Project) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mujoco.h:30\x1b[m\x1b[K:\n'}
+[7.758117] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mjvisualize.h:184:8:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Kconstexpr mjvCamera_& mjvCamera_::\x1b[01;32m\x1b[Koperator=\x1b[m\x1b[K(const mjvCamera_&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.764494] (Robotics_Project) StderrLine: {'line': b'  184 | struct \x1b[01;36m\x1b[KmjvCamera_\x1b[m\x1b[K {               // abstract camera\n'}
+[7.766013] (Robotics_Project) StderrLine: {'line': b'      |        \x1b[01;36m\x1b[K^~~~~~~~~~\x1b[m\x1b[K\n'}
+[7.768171] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mjvisualize.h:184:8:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  no known conversion for argument 1 from \xe2\x80\x98\x1b[01m\x1b[KmjvCamera*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_*\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[Kconst mjvCamera_&\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.769647] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mjvisualize.h:184:8:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Kconstexpr mjvCamera_& mjvCamera_::\x1b[01;32m\x1b[Koperator=\x1b[m\x1b[K(mjvCamera_&&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.770857] (Robotics_Project) StderrLine: {'line': b'\x1b[01m\x1b[K/home/victustrio/.mujoco/mujoco-3.2.0/include/mujoco/mjvisualize.h:184:8:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  no known conversion for argument 1 from \xe2\x80\x98\x1b[01m\x1b[KmjvCamera*\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_*\x1b[m\x1b[K\xe2\x80\x99} to \xe2\x80\x98\x1b[01m\x1b[KmjvCamera_&&\x1b[m\x1b[K\xe2\x80\x99\n'}
+[7.834728] (-) TimerEvent: {}
+[7.935690] (-) TimerEvent: {}
+[8.036612] (-) TimerEvent: {}
+[8.137477] (-) TimerEvent: {}
+[8.238539] (-) TimerEvent: {}
+[8.339725] (-) TimerEvent: {}
+[8.440844] (-) TimerEvent: {}
+[8.541793] (-) TimerEvent: {}
+[8.643487] (-) TimerEvent: {}
+[8.744420] (-) TimerEvent: {}
+[8.846009] (-) TimerEvent: {}
+[8.947507] (-) TimerEvent: {}
+[9.049511] (-) TimerEvent: {}
+[9.150789] (-) TimerEvent: {}
+[9.253941] (-) TimerEvent: {}
+[9.355500] (-) TimerEvent: {}
+[9.456889] (-) TimerEvent: {}
+[9.559343] (-) TimerEvent: {}
+[9.660516] (-) TimerEvent: {}
+[9.792057] (-) TimerEvent: {}
+[9.893205] (-) TimerEvent: {}
+[9.994140] (-) TimerEvent: {}
+[10.095299] (-) TimerEvent: {}
+[10.196583] (-) TimerEvent: {}
+[10.210337] (Robotics_Project) StderrLine: {'line': b'gmake[2]: *** [CMakeFiles/mujoco_node.dir/build.make:90: CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o] Error 1\n'}
+[10.214453] (Robotics_Project) StderrLine: {'line': b'gmake[1]: *** [CMakeFiles/Makefile2:137: CMakeFiles/mujoco_node.dir/all] Error 2\n'}
+[10.217536] (Robotics_Project) StderrLine: {'line': b'gmake: *** [Makefile:146: all] Error 2\n'}
+[10.219312] (Robotics_Project) CommandEnded: {'returncode': 2}
+[10.296669] (-) TimerEvent: {}
+[10.397336] (-) TimerEvent: {}
+[10.500458] (-) TimerEvent: {}
+[10.610847] (-) TimerEvent: {}
+[10.676877] (Robotics_Project) JobEnded: {'identifier': 'Robotics_Project', 'rc': 2}
+[10.698370] (-) EventReactorShutdown: {}
