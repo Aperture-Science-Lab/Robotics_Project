@@ -1,9 +1,0 @@
-[0.240s] Invoking command in '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics /usr/bin/cmake --build /mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project -- -j20 -l20
-[3.199s] [ 33%] [32mBuilding CXX object CMakeFiles/mujoco_node.dir/src/mujoco_ros.cpp.o[0m
-[18.844s] [ 66%] [32m[1mLinking CXX executable mujoco_node[0m
-[21.010s] /usr/bin/ld: cannot find -lmujoco: No such file or directory
-[21.198s] collect2: error: ld returned 1 exit status
-[21.202s] gmake[2]: *** [CMakeFiles/mujoco_node.dir/build.make:203: mujoco_node] Error 1
-[21.207s] gmake[1]: *** [CMakeFiles/Makefile2:137: CMakeFiles/mujoco_node.dir/all] Error 2
-[21.212s] gmake: *** [Makefile:146: all] Error 2
-[21.216s] Invoked command in '/mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics /usr/bin/cmake --build /mnt/d/Robotics_project/Robotics_Project/build/Robotics_Project -- -j20 -l20

@@ -1,1 +1,0 @@
-/mnt/d/Robotics_project/Robotics_Project/install/Robotics_Project/lib/Robotics_Project/mujoco_node

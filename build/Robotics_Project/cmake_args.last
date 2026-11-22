@@ -1,1 +1,0 @@
-['-DCMAKE_CXX_FLAGS=-I/home/victustrio/.mujoco/mujoco-3.2.0/include', '-DCMAKE_C_FLAGS=-I/home/victustrio/.mujoco/mujoco-3.2.0/include', '-DCMAKE_EXE_LINKER_FLAGS=-L/home/victustrio/.mujoco/mujoco-3.2.0/lib', '-DCMAKE_SHARED_LINKER_FLAGS=-L/home/victustrio/.mujoco/mujoco-3.2.0/lib', '-DAMENT_CMAKE_SYMLINK_INSTALL=1']

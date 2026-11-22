@@ -1,2 +1,0 @@
-[console_scripts]
-kinematics = panda_kinematics.kinematics:main
