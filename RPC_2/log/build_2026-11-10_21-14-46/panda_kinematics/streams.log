@@ -1,0 +1,49 @@
+[4.442s] Invoking command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data
+[6.593s] running egg_info
+[6.607s] creating build/panda_kinematics/panda_kinematics.egg-info
+[6.714s] writing build/panda_kinematics/panda_kinematics.egg-info/PKG-INFO
+[6.749s] writing dependency_links to build/panda_kinematics/panda_kinematics.egg-info/dependency_links.txt
+[6.767s] writing entry points to build/panda_kinematics/panda_kinematics.egg-info/entry_points.txt
+[6.785s] writing requirements to build/panda_kinematics/panda_kinematics.egg-info/requires.txt
+[6.797s] writing top-level names to build/panda_kinematics/panda_kinematics.egg-info/top_level.txt
+[6.817s] writing manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'
+[7.146s] reading manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'
+[7.771s] writing manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'
+[7.810s] running build
+[7.819s] running build_py
+[7.868s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build
+[7.916s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib
+[7.976s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics
+[8.123s] copying panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics
+[8.416s] copying panda_kinematics/setup.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics
+[8.639s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics
+[8.814s] copying panda_kinematics/panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics
+[9.032s] copying panda_kinematics/panda_kinematics/kinematics.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics
+[9.315s] copying panda_kinematics/panda_kinematics/trajectory_node.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics
+[9.506s] running install
+[9.567s] running install_lib
+[9.920s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics
+[10.159s] copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics
+[10.500s] copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/setup.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics
+[10.860s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics
+[11.147s] copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics
+[11.502s] copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics/kinematics.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics
+[11.877s] copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build/lib/panda_kinematics/panda_kinematics/trajectory_node.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics
+[12.129s] byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/__init__.py to __init__.cpython-312.pyc
+[12.628s] byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/setup.py to setup.cpython-312.pyc
+[12.982s] byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics/__init__.py to __init__.cpython-312.pyc
+[13.373s] byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics/kinematics.py to kinematics.cpython-312.pyc
+[13.907s] byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/panda_kinematics/trajectory_node.py to trajectory_node.cpython-312.pyc
+[14.251s] running install_data
+[14.334s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/ament_index
+[14.433s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/ament_index/resource_index
+[14.525s] creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/ament_index/resource_index/packages
+[14.691s] copying resource/panda_kinematics -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/ament_index/resource_index/packages
+[14.851s] copying package.xml -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics
+[14.937s] running install_egg_info
+[15.142s] Copying build/panda_kinematics/panda_kinematics.egg-info to /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics-0.0.0-py3.12.egg-info
+[17.668s] running install_scripts
+[19.334s] Installing kinematics script to /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/panda_kinematics
+[19.391s] Installing trajectory_node script to /mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/panda_kinematics
+[19.427s] writing list of installed files to '/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log'
+[19.475s] Invoked command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2' returned '0': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data

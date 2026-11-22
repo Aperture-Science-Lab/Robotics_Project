@@ -1,0 +1,189 @@
+[0.000000] (-) TimerEvent: {}
+[0.002128] (panda_kinematics) JobQueued: {'identifier': 'panda_kinematics', 'dependencies': OrderedDict()}
+[0.004022] (panda_kinematics) JobStarted: {'identifier': 'panda_kinematics'}
+[0.091752] (-) TimerEvent: {}
+[0.194887] (-) TimerEvent: {}
+[0.296559] (-) TimerEvent: {}
+[0.398719] (-) TimerEvent: {}
+[0.503752] (-) TimerEvent: {}
+[0.606400] (-) TimerEvent: {}
+[0.709623] (-) TimerEvent: {}
+[0.811615] (-) TimerEvent: {}
+[0.914500] (-) TimerEvent: {}
+[1.017372] (-) TimerEvent: {}
+[1.120900] (-) TimerEvent: {}
+[1.223454] (-) TimerEvent: {}
+[1.325839] (-) TimerEvent: {}
+[1.427605] (-) TimerEvent: {}
+[1.529827] (-) TimerEvent: {}
+[1.632396] (-) TimerEvent: {}
+[1.733620] (-) TimerEvent: {}
+[1.836677] (-) TimerEvent: {}
+[1.938259] (-) TimerEvent: {}
+[2.041068] (-) TimerEvent: {}
+[2.143508] (-) TimerEvent: {}
+[2.245071] (-) TimerEvent: {}
+[2.346408] (-) TimerEvent: {}
+[2.447694] (-) TimerEvent: {}
+[2.548808] (-) TimerEvent: {}
+[2.650243] (-) TimerEvent: {}
+[2.751397] (-) TimerEvent: {}
+[2.853646] (-) TimerEvent: {}
+[2.956970] (-) TimerEvent: {}
+[3.058252] (-) TimerEvent: {}
+[3.159559] (-) TimerEvent: {}
+[3.261309] (-) TimerEvent: {}
+[3.362225] (-) TimerEvent: {}
+[3.463256] (-) TimerEvent: {}
+[3.566157] (-) TimerEvent: {}
+[3.667366] (-) TimerEvent: {}
+[3.769250] (-) TimerEvent: {}
+[3.872206] (-) TimerEvent: {}
+[3.973239] (-) TimerEvent: {}
+[4.074524] (-) TimerEvent: {}
+[4.176462] (-) TimerEvent: {}
+[4.279357] (-) TimerEvent: {}
+[4.380308] (-) TimerEvent: {}
+[4.481096] (-) TimerEvent: {}
+[4.583533] (-) TimerEvent: {}
+[4.685773] (-) TimerEvent: {}
+[4.788045] (-) TimerEvent: {}
+[4.889139] (-) TimerEvent: {}
+[4.990624] (-) TimerEvent: {}
+[5.092240] (-) TimerEvent: {}
+[5.192874] (-) TimerEvent: {}
+[5.293680] (-) TimerEvent: {}
+[5.394280] (-) TimerEvent: {}
+[5.397296] (panda_kinematics) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', 'build/panda_kinematics', 'build', '--build-base', '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build', 'install', '--record', '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/install.log', '--install-scripts', '$base/lib/panda_kinematics', '--single-version-externally-managed', 'install_data'], 'cwd': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics', 'env': OrderedDict({'LESSOPEN': '| /usr/bin/lesspipe %s', 'MESA_D3D12_DEFAULT_ADAPTER_NAME': 'NVIDIA', 'USER': 'victustrio', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib:/home/victustrio/.mujoco/mujoco-3.2.0/lib:', 'HOME': '/home/victustrio', 'OLDPWD': '/mnt/d/Robotics_project/Robotics_Project/RPC_2', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'COLCON_PREFIX_PATH': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install:/home/victustrio/project_name/install', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'victustrio', 'NAME': 'DESKTOP-0G5QBEE', 'WSL_INTEROP': '/run/WSL/496_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/jazzy/bin:/home/victustrio/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/usr/lib/linux-tools/6.18.54.1-microsoft-standard-WSL2/bin:/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_3.0.3.0_x64__8wekyb3d8bbwe:/mnt/c/Program Files/Microsoft/jdk-21.0.12.101-hotspot/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/WSL/:/mnt/c/Program Files/MATLAB/R2026b/bin:/mnt/c/Users/Victus/.local/bin:/mnt/c/Users/Victus/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Victus/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Program Files/Microsoft/jdk-21.0.12.101-hotspot/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/Victus/AppData/Local/Python/bin:/snap/bin', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'PERF_EXEC_PATH': '/usr/lib/linux-tools/6.18.54.1-microsoft-standard-WSL2/libexec/perf-core', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'AMENT_PREFIX_PATH': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics:/home/victustrio/project_name/install/panda_kinematics:/home/victustrio/project_name/install/mujoco_ros2:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'GALLIUM_DRIVER': 'd3d12', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:/home/victustrio/project_name/install/panda_kinematics/lib/python3.12/site-packages:/opt/ros/jazzy/opt/gz_math_vendor/lib/python:/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/home/victustrio/project_name/install/mujoco_ros2:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor', 'WSLENV': ''}), 'shell': False}
+[5.494393] (-) TimerEvent: {}
+[5.595035] (-) TimerEvent: {}
+[5.696340] (-) TimerEvent: {}
+[5.797483] (-) TimerEvent: {}
+[5.898138] (-) TimerEvent: {}
+[6.000106] (-) TimerEvent: {}
+[6.100856] (-) TimerEvent: {}
+[6.202759] (-) TimerEvent: {}
+[6.304072] (-) TimerEvent: {}
+[6.405354] (-) TimerEvent: {}
+[6.508000] (-) TimerEvent: {}
+[6.609795] (-) TimerEvent: {}
+[6.710547] (-) TimerEvent: {}
+[6.811438] (-) TimerEvent: {}
+[6.912650] (-) TimerEvent: {}
+[7.013743] (-) TimerEvent: {}
+[7.114827] (-) TimerEvent: {}
+[7.216315] (-) TimerEvent: {}
+[7.314662] (panda_kinematics) StdoutLine: {'line': b'running egg_info\n'}
+[7.323664] (-) TimerEvent: {}
+[7.332044] (panda_kinematics) StdoutLine: {'line': b'creating build/panda_kinematics/panda_kinematics.egg-info\n'}
+[7.382094] (panda_kinematics) StdoutLine: {'line': b'writing build/panda_kinematics/panda_kinematics.egg-info/PKG-INFO\n'}
+[7.399880] (panda_kinematics) StdoutLine: {'line': b'writing dependency_links to build/panda_kinematics/panda_kinematics.egg-info/dependency_links.txt\n'}
+[7.411434] (panda_kinematics) StdoutLine: {'line': b'writing entry points to build/panda_kinematics/panda_kinematics.egg-info/entry_points.txt\n'}
+[7.421896] (panda_kinematics) StdoutLine: {'line': b'writing requirements to build/panda_kinematics/panda_kinematics.egg-info/requires.txt\n'}
+[7.425020] (-) TimerEvent: {}
+[7.435193] (panda_kinematics) StdoutLine: {'line': b'writing top-level names to build/panda_kinematics/panda_kinematics.egg-info/top_level.txt\n'}
+[7.447806] (panda_kinematics) StdoutLine: {'line': b"writing manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'\n"}
+[7.525082] (-) TimerEvent: {}
+[7.578214] (panda_kinematics) StdoutLine: {'line': b"reading manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'\n"}
+[7.625203] (-) TimerEvent: {}
+[7.728565] (-) TimerEvent: {}
+[7.829648] (-) TimerEvent: {}
+[7.858744] (panda_kinematics) StdoutLine: {'line': b"writing manifest file 'build/panda_kinematics/panda_kinematics.egg-info/SOURCES.txt'\n"}
+[7.889854] (panda_kinematics) StdoutLine: {'line': b'running build\n'}
+[7.896740] (panda_kinematics) StdoutLine: {'line': b'running build_py\n'}
+[7.923435] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build\n'}
+[7.929806] (-) TimerEvent: {}
+[7.971782] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib\n'}
+[8.004002] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics\n'}
+[8.029963] (-) TimerEvent: {}
+[8.075714] (panda_kinematics) StdoutLine: {'line': b'copying panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics\n'}
+[8.130092] (-) TimerEvent: {}
+[8.170532] (panda_kinematics) StdoutLine: {'line': b'copying panda_kinematics/kinematics.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics\n'}
+[8.230277] (-) TimerEvent: {}
+[8.255993] (panda_kinematics) StdoutLine: {'line': b'copying panda_kinematics/trajectory_node.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics\n'}
+[8.330558] (-) TimerEvent: {}
+[8.363911] (panda_kinematics) StdoutLine: {'line': b'running install\n'}
+[8.390198] (panda_kinematics) StdoutLine: {'line': b'running install_lib\n'}
+[8.430872] (-) TimerEvent: {}
+[8.532732] (-) TimerEvent: {}
+[8.634365] (-) TimerEvent: {}
+[8.649288] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics\n'}
+[8.734592] (-) TimerEvent: {}
+[8.764347] (panda_kinematics) StdoutLine: {'line': b'copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics/__init__.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics\n'}
+[8.834714] (-) TimerEvent: {}
+[8.875758] (panda_kinematics) StdoutLine: {'line': b'copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics/kinematics.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics\n'}
+[8.934849] (-) TimerEvent: {}
+[9.040609] (-) TimerEvent: {}
+[9.046915] (panda_kinematics) StdoutLine: {'line': b'copying /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/build/lib/panda_kinematics/trajectory_node.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics\n'}
+[9.136220] (panda_kinematics) StdoutLine: {'line': b'byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/__init__.py to __init__.cpython-312.pyc\n'}
+[9.140694] (-) TimerEvent: {}
+[9.241557] (-) TimerEvent: {}
+[9.342698] (-) TimerEvent: {}
+[9.357739] (panda_kinematics) StdoutLine: {'line': b'byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/kinematics.py to kinematics.cpython-312.pyc\n'}
+[9.442835] (-) TimerEvent: {}
+[9.482789] (panda_kinematics) StdoutLine: {'line': b'byte-compiling /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics/trajectory_node.py to trajectory_node.cpython-312.pyc\n'}
+[9.543004] (-) TimerEvent: {}
+[9.595868] (panda_kinematics) StdoutLine: {'line': b'running install_data\n'}
+[9.639339] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/ament_index\n'}
+[9.646184] (-) TimerEvent: {}
+[9.681470] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/ament_index/resource_index\n'}
+[9.727864] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/ament_index/resource_index/packages\n'}
+[9.746540] (-) TimerEvent: {}
+[9.817290] (panda_kinematics) StdoutLine: {'line': b'copying resource/panda_kinematics -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/ament_index/resource_index/packages\n'}
+[9.846915] (-) TimerEvent: {}
+[9.950412] (-) TimerEvent: {}
+[9.959900] (panda_kinematics) StdoutLine: {'line': b'copying package.xml -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/panda_kinematics\n'}
+[10.050793] (-) TimerEvent: {}
+[10.112203] (panda_kinematics) StdoutLine: {'line': b'creating /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/panda_kinematics/launch\n'}
+[10.151252] (-) TimerEvent: {}
+[10.192547] (panda_kinematics) StdoutLine: {'line': b'copying launch/demo.launch.py -> /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/share/panda_kinematics/launch\n'}
+[10.251443] (-) TimerEvent: {}
+[10.289926] (panda_kinematics) StdoutLine: {'line': b'running install_egg_info\n'}
+[10.351624] (-) TimerEvent: {}
+[10.432053] (panda_kinematics) StdoutLine: {'line': b'Copying build/panda_kinematics/panda_kinematics.egg-info to /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/python3.12/site-packages/panda_kinematics-0.0.0-py3.12.egg-info\n'}
+[10.452051] (-) TimerEvent: {}
+[10.554240] (-) TimerEvent: {}
+[10.655539] (-) TimerEvent: {}
+[10.757148] (-) TimerEvent: {}
+[10.858412] (-) TimerEvent: {}
+[10.959419] (-) TimerEvent: {}
+[11.061624] (-) TimerEvent: {}
+[11.162828] (-) TimerEvent: {}
+[11.270856] (-) TimerEvent: {}
+[11.371822] (-) TimerEvent: {}
+[11.473099] (-) TimerEvent: {}
+[11.575266] (-) TimerEvent: {}
+[11.677075] (-) TimerEvent: {}
+[11.778295] (-) TimerEvent: {}
+[11.808938] (panda_kinematics) StdoutLine: {'line': b'running install_scripts\n'}
+[11.878435] (-) TimerEvent: {}
+[11.980152] (-) TimerEvent: {}
+[12.082532] (-) TimerEvent: {}
+[12.185124] (-) TimerEvent: {}
+[12.286852] (-) TimerEvent: {}
+[12.389270] (-) TimerEvent: {}
+[12.492068] (-) TimerEvent: {}
+[12.592875] (-) TimerEvent: {}
+[12.601623] (panda_kinematics) StdoutLine: {'line': b'Installing kinematics script to /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/panda_kinematics\n'}
+[12.680227] (panda_kinematics) StdoutLine: {'line': b'Installing trajectory_node script to /mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/install/panda_kinematics/lib/panda_kinematics\n'}
+[12.693110] (-) TimerEvent: {}
+[12.745876] (panda_kinematics) StdoutLine: {'line': b"writing list of installed files to '/mnt/d/Robotics_project/Robotics_Project/RPC_2/panda_kinematics/build/panda_kinematics/install.log'\n"}
+[12.793538] (-) TimerEvent: {}
+[12.851256] (panda_kinematics) CommandEnded: {'returncode': 0}
+[12.893996] (-) TimerEvent: {}
+[12.996468] (-) TimerEvent: {}
+[13.098427] (-) TimerEvent: {}
+[13.199973] (-) TimerEvent: {}
+[13.303074] (-) TimerEvent: {}
+[13.404031] (-) TimerEvent: {}
+[13.505492] (-) TimerEvent: {}
+[13.607575] (-) TimerEvent: {}
+[13.708675] (-) TimerEvent: {}
+[13.809655] (-) TimerEvent: {}
+[13.912343] (-) TimerEvent: {}
+[14.013136] (-) TimerEvent: {}
+[14.114115] (-) TimerEvent: {}
+[14.216935] (-) TimerEvent: {}
+[14.264953] (panda_kinematics) JobEnded: {'identifier': 'panda_kinematics', 'rc': 0}
+[14.321156] (-) TimerEvent: {}
+[14.323232] (-) EventReactorShutdown: {}

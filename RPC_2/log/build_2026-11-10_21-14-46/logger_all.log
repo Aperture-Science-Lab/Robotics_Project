@@ -1,0 +1,95 @@
+[0.424s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'panda_kinematics']
+[0.425s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=20, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['panda_kinematics'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x726ab8f6aea0>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x726ab8f6ad80>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x726ab8f6ad80>>)
+[0.680s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.682s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.682s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.683s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.684s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.685s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.685s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/mnt/d/Robotics_project/Robotics_Project/RPC_2'
+[0.690s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.690s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.692s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.694s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.695s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.697s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.698s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.698s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.699s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.768s] DEBUG:colcon.colcon_core.package_identification:Package '.' with type 'ros.ament_python' and name 'panda_kinematics'
+[0.769s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.771s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.772s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.773s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.821s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.822s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.829s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics' in the environment variable AMENT_PREFIX_PATH doesn't exist
+[0.897s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 0 installed packages in /mnt/d/Robotics_project/Robotics_Project/RPC_2/install
+[0.899s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 2 installed packages in /home/victustrio/project_name/install
+[0.905s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 287 installed packages in /opt/ros/jazzy
+[0.909s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.983s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_args' from command line to 'None'
+[0.984s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_target' from command line to 'None'
+[0.985s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.986s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_clean_cache' from command line to 'False'
+[0.987s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_clean_first' from command line to 'False'
+[0.988s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'cmake_force_configure' from command line to 'False'
+[0.989s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'ament_cmake_args' from command line to 'None'
+[0.990s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'catkin_cmake_args' from command line to 'None'
+[0.991s] Level 5:colcon.colcon_core.verb:set package 'panda_kinematics' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.992s] DEBUG:colcon.colcon_core.verb:Building package 'panda_kinematics' with the following arguments: {'ament_cmake_args': None, 'build_base': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics', 'merge_install': False, 'path': '/mnt/d/Robotics_project/Robotics_Project/RPC_2', 'symlink_install': False, 'test_result_base': None}
+[0.993s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.996s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.997s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/mnt/d/Robotics_project/Robotics_Project/RPC_2' with build type 'ament_python'
+[0.998s] Level 1:colcon.colcon_core.shell:create_environment_hook('panda_kinematics', 'ament_prefix_path')
+[1.003s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[1.005s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/ament_prefix_path.ps1'
+[1.271s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/ament_prefix_path.dsv'
+[1.334s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/ament_prefix_path.sh'
+[1.399s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.400s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.182s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/mnt/d/Robotics_project/Robotics_Project/RPC_2'
+[2.184s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[2.185s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[5.371s] DEBUG:colcon.colcon_core.task.python.build:Available setuptools commands: build_scripts, rotate, install_lib, bdist_rpm, install_headers, build_ext, upload, bdist_egg, install_egg_info, sdist, build_clib, compile_catalog, editable_wheel, build, dist_info, egg_info, easy_install, bdist_wheel, update_catalog, install_data, symlink_data, install_scripts, setopt, check, install, upload_docs, develop, register, alias, clean, init_catalog, extract_messages, test, bdist, saveopts, build_py, bdist_dumb
+[5.450s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data
+[20.482s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics' for CMake module files
+[20.483s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/d/Robotics_project/Robotics_Project/RPC_2' returned '0': PYTHONPATH=/mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/panda_kinematics build --build-base /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/build install --record /mnt/d/Robotics_project/Robotics_Project/RPC_2/build/panda_kinematics/install.log --install-scripts $base/lib/panda_kinematics --single-version-externally-managed install_data
+[20.642s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics' for CMake config files
+[20.955s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib'
+[20.967s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/bin'
+[20.971s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/pkgconfig/panda_kinematics.pc'
+[20.977s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/lib/python3.12/site-packages'
+[20.986s] Level 1:colcon.colcon_core.shell:create_environment_hook('panda_kinematics', 'pythonpath')
+[20.987s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/pythonpath.ps1'
+[21.033s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/pythonpath.dsv'
+[21.077s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/hook/pythonpath.sh'
+[21.119s] Level 1:colcon.colcon_core.environment:checking '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/bin'
+[21.123s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(panda_kinematics)
+[21.125s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/package.ps1'
+[21.163s] INFO:colcon.colcon_core.shell:Creating package descriptor '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/package.dsv'
+[21.199s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/package.sh'
+[21.234s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/package.bash'
+[21.272s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/panda_kinematics/package.zsh'
+[21.308s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/panda_kinematics/share/colcon-core/packages/panda_kinematics)
+[21.423s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[21.425s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[21.426s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[21.427s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[21.637s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.notify_send': Could not find 'notify-send'
+[21.639s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[21.640s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[21.641s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[21.644s] DEBUG:colcon.colcon_notification.desktop_notification.notify2:Failed to initialize notify2: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.Notifications was not provided by any .service files
+[21.645s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[21.646s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/local_setup.ps1'
+[21.673s] INFO:colcon.colcon_core.shell:Creating prefix util module '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/_local_setup_util_ps1.py'
+[21.698s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/setup.ps1'
+[21.797s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/local_setup.sh'
+[21.839s] INFO:colcon.colcon_core.shell:Creating prefix util module '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/_local_setup_util_sh.py'
+[21.877s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/setup.sh'
+[21.949s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/local_setup.bash'
+[21.963s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/setup.bash'
+[21.993s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/local_setup.zsh'
+[22.008s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/d/Robotics_project/Robotics_Project/RPC_2/install/setup.zsh'
