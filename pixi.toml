@@ -1,0 +1,14 @@
+[workspace]
+authors = ["AdhamElSamahy909 <adhamlotfy539@gmail.com>"]
+channels = ['https://prefix.dev/robostack-jazzy', 'https://prefix.dev/conda-forge']
+name = "Robotics_Project"
+platforms = ['osx-arm64']
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+ros-jazzy-desktop = ">=0.11.0,<0.12"
+colcon-common-extensions = ">=0.3.0,<0.4"
+mujoco = ">=3.16.0,<4"
+scipy = ">=1.18.1,<2"
