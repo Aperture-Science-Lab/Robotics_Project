@@ -31,19 +31,14 @@ T_L7_HAND = np.array([
     [0.0, 0.0, 0.0, 1.0],
 ])
 
-Q_MIN = np.array([-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973])
+Q_MIN = np.array([-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]) 
 Q_MAX = np.array([ 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973])
 
 TARGET_POSE = None
 Q_TARGET = np.array([0.3, -0.4, 0.2, -1.8, 0.0, 1.6, 0.5])
-# Low end-effector position (crouched down, gripper level)
-Q_START = np.array([0.0, 0.6, 0.0, -2.2, 0.0, 2.8, 0.785])
 
-# High end-effector position (raised vertically, pitch compensated via joint 6)
-Q_END   = np.array([0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.785])
 
-MODE = "POSITION"      # "POSITION" or "VELOCITY"; must match control_mode in example.py
-SIM_FREQ = 1000.0      # simulation_frequency from example.py
+MODE = "VELOCITY"      # "POSITION" or "VELOCITY"; must match control_mode in example.py
 
 def dh_transform(alpha, a, d, theta):
     ct, st = np.cos(theta), np.sin(theta)
@@ -172,14 +167,14 @@ def compute_jacobian(q):
         
     # Apply final hand transform to get end-effector position
     T_hand = T @ T_L7_HAND
-    p_ee = T_hand[:3, 3]
+    p_ee = T_hand[:3, 3] 
     
     # Compute each column of the linear Jacobian using the cross product
     for i in range(7):
         #transforms[i] represents the frame before joint i (T_{i-1})
         z_axis = transforms[i][:3, 2]  # Third column is the Z rotation axis
         p_joint = transforms[i][:3, 3] # Last column is the translation origin
-        # z axise X (p_ee - p_joint)
+        # z axise[i-1] X (p_ee - p_joint[i-1])
         J[:, i] = np.cross(z_axis, p_ee - p_joint)
         
     return J
@@ -252,8 +247,9 @@ GRIPPER_CTRL = 255.0
 
 # UPDATE THESE BASED ON YOUR ASSIGNED VARIANT
 # You must choose reachable configurations within joint limits.
-#Q_START = np.zeros(7)
-#Q_END   = np.zeros(7)
+Q_START = np.array([0.0, 0.6, 0.0, -2.2, 0.0, 2.8, 0.785])
+Q_END   = np.array([0.0, -0.3, 0.0, -1.5, 0.0, 1.2, 0.785])
+
 
 TRAJ_DURATION = 4.0
 TRAJ_DT       = 0.05
@@ -275,7 +271,6 @@ class TrajectoryNode(Node):
         self.dq_traj = None
         self.ddq_traj = None
         self.step_idx = 0
-        self.homing = True 
 
         # Wait 0.5s before starting to ensure the sim is up
         self.create_timer(0.5, self.start_trajectory_once)

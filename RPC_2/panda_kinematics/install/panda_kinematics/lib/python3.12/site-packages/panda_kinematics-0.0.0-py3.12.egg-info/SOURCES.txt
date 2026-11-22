@@ -10,6 +10,9 @@ build/panda_kinematics/panda_kinematics.egg-info/top_level.txt
 build/panda_kinematics/panda_kinematics.egg-info/zip-safe
 launch/demo.launch.py
 panda_kinematics/__init__.py
+panda_kinematics/controller_node.py
 panda_kinematics/kinematics.py
+panda_kinematics/plot_results.py
 panda_kinematics/trajectory_node.py
+panda_kinematics/verify_dynamics.py
 resource/panda_kinematics

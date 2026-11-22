@@ -1,3 +1,4 @@
 [console_scripts]
+controller_node = panda_kinematics.controller_node:main
 kinematics = panda_kinematics.kinematics:main
 trajectory_node = panda_kinematics.trajectory_node:main

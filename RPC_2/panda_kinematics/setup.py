@@ -23,7 +23,8 @@ setup(
     entry_points={
         'console_scripts': [
             'kinematics = panda_kinematics.kinematics:main',
-            'trajectory_node = panda_kinematics.trajectory_node:main'
+            'trajectory_node = panda_kinematics.trajectory_node:main',
+            'controller_node = panda_kinematics.controller_node:main'
         ],
     },
 )
