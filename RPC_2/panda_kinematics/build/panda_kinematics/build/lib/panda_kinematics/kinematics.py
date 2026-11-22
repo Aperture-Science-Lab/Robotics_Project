@@ -56,6 +56,7 @@ T_L7_HAND = np.array([
 Q_MIN = np.array([-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973])
 Q_MAX = np.array([ 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973])
 
+
 # The target pose the node will try to reach.
 # 4x4 numpy array in the 'link0' frame.
 #

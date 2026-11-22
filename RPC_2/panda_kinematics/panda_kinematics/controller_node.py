@@ -5,6 +5,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from scipy.optimize import least_squares
+import os
 import numpy as np
 
 
@@ -266,10 +267,12 @@ def compute_dynamics(q, dq, ddq):
     c_vec = np.einsum('kij,j,k->i', dM, dq, dq) - 0.5 * np.einsum('ijk,j,k->i', dM, dq, dq)
     return M_matrix, c_vec + g_vec
 
-DERR_PEAKS = [-0.5, -0.25, 0.0, 0.25, 0.5]
 TAU_PEAKS  = [-10.0, -5.0, 0.0, 5.0, 10.0]
 
-ERR_PEAKS     = [-0.1, -0.05, 0.0, 0.05, 0.1]
+ERR_PEAKS     = [-0.25, -0.125, 0.0, 0.125, 0.25]
+DERR_PEAKS    = [-0.3, -0.15, 0.0, 0.15, 0.3]
+JOINT_MAX_TAU = np.array([15.0, 15.0, 12.0, 12.0, 3.0, 3.0, 2.0])
+#this ts helps in the robot not dancing 
 
 #rows: error (LN, MN, Z, MP, LP) amd cols: delta_error (LN, MN, Z, MP, LP) twin i am cooked
 RULE_TABLE = [
@@ -302,25 +305,19 @@ def _fuzzify(x, peaks):
 U_GRID = np.linspace(-10.0, 10.0, 201)
 OUT_MFS = np.array([_fuzzify(u, TAU_PEAKS) for u in U_GRID]).T  # shape (5, 201)
 
-#this ts helps in the robot not dancing 
-JOINT_MAX_TAU = np.array([25.0, 25.0, 20.0, 20.0, 6.0, 6.0, 4.0])
+
+_ROBUST = os.environ.get("ROBUST_FLC", "0") == "1"
+_ROBUST_MAX_TAU = np.array([20.0, 28.0, 16.0, 25.0, 4.0, 5.0, 2.0])
+_BIAS_RATE      = np.array([15.0, 35.0, 15.0, 35.0, 5.0, 8.0, 2.0])
+_BIAS_LIMIT     = np.array([25.0, 45.0, 25.0, 45.0, 8.0, 8.0, 4.0])
+_tau_bias       = np.zeros(7)
 
 def fuzzy_controller(error, delta_error, dt):
-    """
-    error:       7x1 numpy array (desired_q - current_q).
-
-    delta_error: 7x1 numpy array (desired_dq - current_dq).
-    dt:          Time step in seconds.
-    
-    Returns:
-        tau_correction: 7x1 numpy array of correction torques.
-    """
     tau_correction = np.zeros(7)
     for j in range(7):
         mu_e = _fuzzify(error[j], ERR_PEAKS)
         mu_de = _fuzzify(delta_error[j], DERR_PEAKS)
 
-        #inference: AND = min, OR aggregation = max
         out_strength = np.zeros(5)
         for r in range(5):
             for c in range(5):
@@ -329,12 +326,23 @@ def fuzzy_controller(error, delta_error, dt):
                 if w > out_strength[idx]:
                     out_strength[idx] = w
 
-        #clip output triangles and compute Centroid of Area
         shaded = np.max(np.minimum(out_strength[:, None], OUT_MFS), axis=0)
         area = np.sum(shaded)
         centroid = np.sum(U_GRID * shaded) / area if area > 1e-9 else 0.0
-        tau_correction[j] = (centroid / 10.0) * JOINT_MAX_TAU[j]
-    
+        max_tau = _ROBUST_MAX_TAU[j] if _ROBUST else JOINT_MAX_TAU[j]
+        tau_correction[j] = (centroid / 10.0) * max_tau
+
+        if _ROBUST:
+            shaded_i = np.max(np.minimum(mu_e[:, None], OUT_MFS), axis=0)
+            area_i = np.sum(shaded_i)
+            c_int = np.sum(U_GRID * shaded_i) / area_i if area_i > 1e-9 else 0.0
+            _tau_bias[j] = np.clip(
+                _tau_bias[j] + (c_int / 10.0) * _BIAS_RATE[j] * dt,
+                -_BIAS_LIMIT[j],
+                _BIAS_LIMIT[j],
+            )
+            tau_correction[j] += _tau_bias[j]
+
     return tau_correction
 
 _log_step = 0
@@ -375,6 +383,7 @@ def compute_torques(q, dq, q_des, dq_des, ddq_des):
     
     # 4. Combine them (You may need to tune how they are added)
     final_torques = tau_model + tau_correction
+
     _log_sample(q, q_des)
     return final_torques
 
@@ -390,14 +399,14 @@ TRAJ_DURATION = 4.0
 TRAJ_DT = 0.01
 
 # Team-specific start and end configurations.
-Q_START = np.array([0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0])
-T_start = forward_kinematics(Q_START)
+Q_START = np.array([0.0, 0.0, 0.0, -1.57079, 0.0, 1.57079, -0.7853])
+Q_END   = np.array([0.30, 0.15, 0.0, -0.75, 0.0, 0.90, -0.7853])
 
-T_end = T_start.copy()
-T_end[0, 3] += 0.35   #reach 35 cm forward in X
-T_end[2, 3] -= 0.45   #lower 45 cm in Z into a horizontal arm pose
-Q_END, _ = inverse_kinematics(T_end, Q_START)
+# T_start = forward_kinematics(Q_START)
 
+# T_end = T_start.copy()
+# T_end[2, 3] += 0.25   # Lift 25 cm straight up against gravity
+# Q_END, _ = inverse_kinematics(T_end, Q_START)
 
 class ControllerNode(Node):
     def __init__(self):
