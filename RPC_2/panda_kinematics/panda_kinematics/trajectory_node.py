@@ -38,7 +38,7 @@ TARGET_POSE = None
 Q_TARGET = np.array([0.3, -0.4, 0.2, -1.8, 0.0, 1.6, 0.5])
 
 
-MODE = "POSITION"      # "POSITION" or "VELOCITY"; must match control_mode in example.py
+MODE = "VELOCITY"      # "POSITION" or "VELOCITY"; must match control_mode in example.py
 
 def dh_transform(alpha, a, d, theta):
     ct, st = np.cos(theta), np.sin(theta)
@@ -174,7 +174,7 @@ def compute_jacobian(q):
         #transforms[i] represents the frame before joint i (T_{i-1})
         z_axis = transforms[i][:3, 2]  # Third column is the Z rotation axis
         p_joint = transforms[i][:3, 3] # Last column is the translation origin
-        # z axise X (p_ee - p_joint)
+        # z axise[i-1] X (p_ee - p_joint[i-1])
         J[:, i] = np.cross(z_axis, p_ee - p_joint)
         
     return J
