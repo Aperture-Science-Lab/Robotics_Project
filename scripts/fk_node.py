@@ -361,6 +361,13 @@ class ForwardKinematicsNode(Node):
         # field either: differentiate from message stamps when it does not.
         self.declare_parameter('estimate_velocity', True)
         self.declare_parameter('estimate_acceleration', True)
+        # /joint_commands is useful when no simulator is running, but while the
+        # bridge publishes /joint_state the two disagree (command vs measured)
+        # and compute_and_report alternates between them.
+        self.declare_parameter('listen_to_commands', False)
+        self.declare_parameter('log_period_sec', 0.5)
+        self.listen_to_commands = self.get_parameter('listen_to_commands').value
+        self.log_period = float(self.get_parameter('log_period_sec').value)
         self.jdot_method = self.get_parameter('jacobian_dot_method').value
         self.fd_step = float(self.get_parameter('fd_step').value)
         self.estimate_velocity = self.get_parameter('estimate_velocity').value
@@ -368,12 +375,16 @@ class ForwardKinematicsNode(Node):
 
         # Subscriptions: reads joint positions from simulation or GUI commands
         self.create_subscription(JointState, '/joint_state', self.joint_state_cb, 10)
-        self.create_subscription(Float64MultiArray, '/joint_commands', self.joint_cmd_cb, 10)
-        # Optional dedicated joint-rate / joint-acceleration streams
-        self.create_subscription(Float64MultiArray, '/joint_velocity_commands',
-                                 self.joint_vel_cmd_cb, 10)
-        self.create_subscription(Float64MultiArray, '/joint_acceleration_commands',
-                                 self.joint_acc_cmd_cb, 10)
+        if self.listen_to_commands:
+            self.create_subscription(Float64MultiArray, '/joint_commands',
+                                     self.joint_cmd_cb, 10)
+        # The dedicated /joint_velocity_commands and /joint_acceleration_commands
+        # subscriptions are deliberately NOT created. They evaluated the chain at
+        # a stale posture while joint_cmd_cb evaluated it at the commanded one,
+        # so compute_and_report fired from several directions per cycle with
+        # different states and logged contradictory answers. Commanded rates and
+        # accelerations still arrive through joint_cmd_cb's extended payload
+        # (10 values = positions + velocities, 15 = plus accelerations).
 
         # Publishers: publishes the reached (X, Y, Z) pose ...
         self.pose_pub = self.create_publisher(PoseStamped, '/current_ee_pose', 10)
@@ -483,26 +494,21 @@ class ForwardKinematicsNode(Node):
         # ----------------------------------------------------
         # 2. PRINT REACHED X, Y, Z AND ITS DERIVATIVES
         # ----------------------------------------------------
+        # Throttled: /joint_state arrives at the bridge's publish rate (200 Hz),
+        # and four unthrottled lines per sample is 800 log lines a second.
         self.get_logger().info(
-            f"[FK Reached Position] -> X: {x:+.4f} m | Y: {y:+.4f} m | Z: {z:+.4f} m"
-        )
-        self.get_logger().info(
-            f"[FK Linear Velocity ] -> Vx: {v[0]:+.4f} | Vy: {v[1]:+.4f} | "
-            f"Vz: {v[2]:+.4f} m/s  (|v| = {np.linalg.norm(v):.4f} m/s)"
-        )
-        self.get_logger().info(
-            f"[FK Linear Accel    ] -> Ax: {a[0]:+.4f} | Ay: {a[1]:+.4f} | "
-            f"Az: {a[2]:+.4f} m/s^2  (|a| = {np.linalg.norm(a):.4f} m/s^2)"
-        )
-        self.get_logger().info(
-            f"[Bias (Jdot*qdot)   ] -> {np.linalg.norm(bias):.4f} m/s^2"
+            f"[FK] X {x:+.4f} Y {y:+.4f} Z {z:+.4f} m | "
+            f"|v| {np.linalg.norm(v):.4f} m/s | |a| {np.linalg.norm(a):.4f} m/s^2 | "
+            f"bias {np.linalg.norm(bias):.4f} m/s^2",
+            throttle_duration_sec=self.log_period
         )
 
         # Warn when the posture is close to a velocity-level singularity
         sigma_min = float(np.linalg.svd(J, compute_uv=False)[-1])
         if sigma_min < 1e-3:
             self.get_logger().warn(
-                f"Near-singular configuration (smallest singular value = {sigma_min:.2e})"
+                f"Near-singular configuration (smallest singular value = {sigma_min:.2e})",
+                throttle_duration_sec=self.log_period
             )
 
         # ----------------------------------------------------

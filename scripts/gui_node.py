@@ -1,5 +1,3 @@
-# Code 2
-
 #!/usr/bin/env python3
 """
 ROS 2 GUI Node connected with the Forward Kinematics and Inverse Kinematics nodes.
@@ -24,7 +22,7 @@ acceleration of the tool tip. Orientation is not commanded.
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, String
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
 
 import tkinter as tk
@@ -32,6 +30,7 @@ from tkinter import ttk
 import threading
 import time
 import math
+import json
 
 STREAM_HZ = 50.0
 STREAM_DT = 1.0 / STREAM_HZ
@@ -52,6 +51,23 @@ QDDOT_LIMIT = 20.0    # rad/s^2
 
 # Cartesian home point the IK position signal oscillates about
 HOME_XYZ = (-0.18, 0.00, 0.18)
+
+# ==============================================================================
+# TRAJECTORY PRESETS  (PCB sorting cell, coordinates from scene.xml)
+# ==============================================================================
+# The PCB sits on the inspection nest with its top face at z = 0.034; the nest
+# pins stand 3 mm proud at x = +/-0.012, so the approach height clears them.
+TASK_PRESETS = [
+    ("Above nest",   (-0.180,  0.000, 0.074)),
+    ("At PCB (grasp)", (-0.180,  0.000, 0.034)),
+    ("Above pass bin",   (-0.100, -0.130, 0.055)),
+    ("Above rework bin", (-0.100,  0.130, 0.055)),
+    ("Above scrap bin",  (-0.245, -0.090, 0.055)),
+]
+
+# Gripper joint range is [-1.60, 0.032]
+GRIP_OPEN = 0.0
+GRIP_CLOSED = -1.2
 
 # ==============================================================================
 # PURE HELPERS (no tk, no ROS - unit-testable on their own)
@@ -179,6 +195,8 @@ class RobotGUINode(Node):
         self.cartesian_target_pub = self.create_publisher(PoseStamped, '/target_pose', 10)
         self.cartesian_vel_pub = self.create_publisher(Vector3Stamped, '/target_velocity', 10)
         self.cartesian_acc_pub = self.create_publisher(Vector3Stamped, '/target_accel', 10)
+        # --- trajectory_node command channel ---
+        self.traj_cmd_pub = self.create_publisher(String, '/trajectory_command', 10)
 
         # --- Subscriptions: feedback from the FK node ---
         self.create_subscription(PoseStamped, '/current_ee_pose', self.ee_pose_callback, 10)
@@ -189,6 +207,9 @@ class RobotGUINode(Node):
                                  self.resolved_vel_callback, 10)
         self.create_subscription(Float64MultiArray, '/joint_acceleration_commands',
                                  self.resolved_acc_callback, 10)
+        # --- and the trajectory node's execution status ---
+        self.create_subscription(String, '/trajectory/status',
+                                 self.traj_status_callback, 10)
 
         self.num_joints = 6
         self.joint_limits = JOINT_LIMITS
@@ -202,6 +223,14 @@ class RobotGUINode(Node):
 
         self.signal_running = False
         self.signal_thread = None
+
+        # Trajectory execution state, mirrored from /trajectory/status. While a
+        # trajectory runs the GUI must NOT publish /joint_commands itself, or
+        # the two publishers fight over the same topic and the arm jumps.
+        self.traj_running = False
+        self.traj_mode = 'idle'
+        self.traj_progress = 0.0
+        self.traj_seen = False
 
     # ---------------- feedback ----------------
     def ee_pose_callback(self, msg: PoseStamped):
@@ -226,6 +255,16 @@ class RobotGUINode(Node):
     def resolved_acc_callback(self, msg: Float64MultiArray):
         if len(msg.data) >= 5:
             self.resolved_qddot = [float(v) for v in msg.data[:5]]
+
+    def traj_status_callback(self, msg: String):
+        try:
+            st = json.loads(msg.data)
+        except (json.JSONDecodeError, TypeError):
+            return
+        self.traj_running = bool(st.get('running', False))
+        self.traj_mode = str(st.get('mode', 'idle'))
+        self.traj_progress = float(st.get('progress', 0.0))
+        self.traj_seen = True
 
     # ---------------- dispatch ----------------
     def dispatch_fk_command(self, joint_angles):
@@ -264,6 +303,14 @@ class RobotGUINode(Node):
     def dispatch_target_accel(self, ax, ay, az):
         self.cartesian_acc_pub.publish(self._vec3(ax, ay, az))
 
+    # ---------------- trajectory dispatch ----------------
+    def dispatch_trajectory(self, payload: dict):
+        """Send one JSON command to trajectory_node on /trajectory_command."""
+        msg = String()
+        msg.data = json.dumps(payload)
+        self.traj_cmd_pub.publish(msg)
+        self.get_logger().info(f"-> /trajectory_command {msg.data}")
+
     def _vec3(self, x, y, z):
         msg = Vector3Stamped()
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -287,6 +334,10 @@ class GUIApp:
 
         self.is_ready = False
         self._suppress = False          # blocks slider callbacks during programmatic set
+        # stream_loop runs off the main thread, and Tk variables may only be
+        # read from the thread that owns them. The active mode is therefore
+        # cached in a plain attribute that on_mode_change keeps up to date.
+        self._mode_cache = "FK_POS" 
 
         # Per-mode widget and value storage
         self.sliders = {m: {} for m in MODE_ORDER}
@@ -345,10 +396,12 @@ class GUIApp:
         self.tab_sliders = ttk.Frame(self.notebook, padding=10)
         self.tab_constants = ttk.Frame(self.notebook, padding=10)
         self.tab_signals = ttk.Frame(self.notebook, padding=10)
+        self.tab_traj = ttk.Frame(self.notebook, padding=10)
 
         self.notebook.add(self.tab_sliders, text=" Sliders ")
         self.notebook.add(self.tab_constants, text=" Constants ")
         self.notebook.add(self.tab_signals, text=" Signal Builder ")
+        self.notebook.add(self.tab_traj, text=" Trajectory ")
 
         self.slider_frames = {}
         self.const_frames = {}
@@ -365,6 +418,8 @@ class GUIApp:
         self.signal_btn = ttk.Button(self.tab_signals, text="Start Signal Generator",
                                      command=self.toggle_signal)
         self.signal_btn.pack(pady=12)
+
+        self.build_trajectory_tab()
 
         bottom_frame = ttk.Frame(root, padding=10)
         bottom_frame.pack(fill="x", side="bottom")
@@ -466,10 +521,192 @@ class GUIApp:
         self.signal_frames[mode] = frame
 
     # ------------------------------------------------------------------
+    # TAB 4: TRAJECTORY  (drives trajectory_node.py)
+    # ------------------------------------------------------------------
+    def build_trajectory_tab(self):
+        """
+        Front end for trajectory_node.py. The GUI only SENDS a goal; the
+        planning, the controller and the loop closure all live in that node.
+
+        Joint-space -> quintic in joint space, 5 decoupled SISO PID loops.
+        Task-space  -> straight line + quintic timing, 3 decoupled SISO fuzzy
+                       controllers on the Cartesian axes, then J# to joint rates.
+        """
+        tab = self.tab_traj
+
+        ttk.Label(tab,
+                  text="Trajectory planning + closed-loop control "
+                       "(requires trajectory_node.py and the bridge in --dynamics mode)",
+                  font=("Helvetica", 9, "bold")).pack(anchor="w", pady=(0, 8))
+
+        # ---- planner choice ----
+        self.traj_kind = tk.StringVar(value="joint")
+        kind_frame = ttk.LabelFrame(tab, text=" Planner ", padding=8)
+        kind_frame.pack(fill="x", pady=4)
+        ttk.Radiobutton(
+            kind_frame,
+            text="Joint-Space  (quintic in q; smooth joints, curved Cartesian path)",
+            variable=self.traj_kind, value="joint",
+            command=self.on_traj_kind_change).pack(anchor="w")
+        ttk.Radiobutton(
+            kind_frame,
+            text="Task-Space  (straight line in XYZ; required for the nest and bin descents)",
+            variable=self.traj_kind, value="task",
+            command=self.on_traj_kind_change).pack(anchor="w")
+
+        # ---- joint-space goal ----
+        self.traj_joint_frame = ttk.LabelFrame(tab, text=" Target joint angles (rad) ", padding=8)
+        self.traj_q_entries = []
+        # Non-zero defaults: a reachable demo posture, so Execute does
+        # something visible the first time it is pressed.
+        JOINT_DEMO = (0.40, -0.60, 0.50, 0.00, 0.00)
+        for i in range(5):
+            row = ttk.Frame(self.traj_joint_frame)
+            row.pack(fill="x", pady=2)
+            lo, hi = JOINT_LIMITS[i]
+            ttk.Label(row, text=f"Joint {i+1} [{lo:+.2f} to {hi:+.2f}]:",
+                      width=26).pack(side="left")
+            ent = ttk.Entry(row, width=10)
+            ent.insert(0, f"{JOINT_DEMO[i]:.3f}")
+            ent.pack(side="left")
+            self.traj_q_entries.append(ent)
+
+        jbtn = ttk.Frame(self.traj_joint_frame)
+        jbtn.pack(fill="x", pady=(6, 0))
+        ttk.Button(jbtn, text="Copy from FK sliders",
+                   command=self.traj_copy_from_sliders).pack(side="left", padx=2)
+        ttk.Button(jbtn, text="Zero",
+                   command=lambda: self.traj_set_q([0.0] * 5)).pack(side="left", padx=2)
+
+        # ---- task-space goal ----
+        self.traj_task_frame = ttk.LabelFrame(tab, text=" Target tool-tip position (m) ", padding=8)
+        self.traj_x_entries = {}
+        for axis, default in (("X", -0.180), ("Y", 0.000), ("Z", 0.074)):
+            row = ttk.Frame(self.traj_task_frame)
+            row.pack(fill="x", pady=2)
+            ttk.Label(row, text=f"Target {axis}:", width=26).pack(side="left")
+            ent = ttk.Entry(row, width=10)
+            ent.insert(0, f"{default:.3f}")
+            ent.pack(side="left")
+            self.traj_x_entries[axis] = ent
+
+        ttk.Label(self.traj_task_frame, text="Presets:",
+                  font=("Helvetica", 9, "bold")).pack(anchor="w", pady=(6, 2))
+        preset_grid = ttk.Frame(self.traj_task_frame)
+        preset_grid.pack(fill="x")
+        for idx, (name, xyz) in enumerate(TASK_PRESETS):
+            ttk.Button(preset_grid, text=name, width=18,
+                       command=lambda v=xyz: self.traj_set_x(v)
+                       ).grid(row=idx // 3, column=idx % 3, padx=2, pady=2, sticky="w")
+
+        # ---- duration + actions ----
+        act = ttk.LabelFrame(tab, text=" Execute ", padding=8)
+        act.pack(fill="x", pady=6)
+
+        trow = ttk.Frame(act)
+        trow.pack(fill="x", pady=2)
+        ttk.Label(trow, text="Duration T (s):", width=26).pack(side="left")
+        self.traj_T_entry = ttk.Entry(trow, width=10)
+        self.traj_T_entry.insert(0, "3.0")
+        self.traj_T_entry.pack(side="left")
+
+        brow = ttk.Frame(act)
+        brow.pack(fill="x", pady=(8, 2))
+        ttk.Button(brow, text="Execute Trajectory",
+                   command=self.traj_execute).pack(side="left", padx=2)
+        ttk.Button(brow, text="Stop",
+                   command=self.traj_stop).pack(side="left", padx=2)
+        ttk.Button(brow, text="Go Home",
+                   command=self.traj_home).pack(side="left", padx=2)
+
+        grow = ttk.Frame(act)
+        grow.pack(fill="x", pady=2)
+        ttk.Label(grow, text="Gripper:", width=26).pack(side="left")
+        ttk.Button(grow, text="Open",
+                   command=lambda: self.traj_gripper(GRIP_OPEN)).pack(side="left", padx=2)
+        ttk.Button(grow, text="Close",
+                   command=lambda: self.traj_gripper(GRIP_CLOSED)).pack(side="left", padx=2)
+
+        self.lbl_traj_status = ttk.Label(tab, text="Status: waiting for trajectory_node",
+                                         font=("Helvetica", 10, "bold"))
+        self.lbl_traj_status.pack(anchor="w", pady=(8, 2))
+        ttk.Label(tab,
+                  text="While a trajectory runs the sliders and signal generator stop "
+                       "publishing, so they cannot fight it for /joint_commands.",
+                  font=("Helvetica", 9, "italic")).pack(anchor="w")
+
+        self.on_traj_kind_change()
+
+    def on_traj_kind_change(self):
+        if self.traj_kind.get() == "joint":
+            self.traj_task_frame.pack_forget()
+            self.traj_joint_frame.pack(fill="x", pady=4)
+        else:
+            self.traj_joint_frame.pack_forget()
+            self.traj_task_frame.pack(fill="x", pady=4)
+
+    def traj_set_q(self, values):
+        for ent, v in zip(self.traj_q_entries, values):
+            ent.delete(0, "end")
+            ent.insert(0, f"{float(v):.3f}")
+
+    def traj_set_x(self, xyz):
+        for axis, v in zip(("X", "Y", "Z"), xyz):
+            ent = self.traj_x_entries[axis]
+            ent.delete(0, "end")
+            ent.insert(0, f"{float(v):.3f}")
+
+    def traj_copy_from_sliders(self):
+        self.traj_set_q([self.get_slider_value("FK_POS", f"J{i+1}") for i in range(5)])
+
+    def traj_duration(self):
+        try:
+            T = float(self.traj_T_entry.get())
+        except ValueError:
+            T = 3.0
+        return max(0.2, T)
+
+    def traj_execute(self):
+        T = self.traj_duration()
+        try:
+            if self.traj_kind.get() == "joint":
+                q_end = [clamp(float(e.get()), *JOINT_LIMITS[i])
+                         for i, e in enumerate(self.traj_q_entries)]
+                self.traj_set_q(q_end)          # show what was actually sent
+                # A target equal to the current posture plans a constant
+                # trajectory: the node logs a plan and the arm correctly does
+                # nothing, which looks exactly like a dead button.
+                q_now = [self.get_slider_value("FK_POS", f"J{i+1}")
+                         for i in range(5)]
+                if all(abs(a - b) < 1e-4 for a, b in zip(q_end, q_now)):
+                    self.lbl_traj_status.config(
+                        text="Status: target equals the current posture - "
+                             "nothing to execute. Change a joint angle.")
+                    return
+                self.node.dispatch_trajectory(
+                    {"mode": "joint", "q_end": q_end, "T": T})
+            else:
+                x_end = [float(self.traj_x_entries[a].get()) for a in ("X", "Y", "Z")]
+                self.node.dispatch_trajectory(
+                    {"mode": "task", "x_end": x_end, "T": T})
+        except ValueError:
+            self.lbl_traj_status.config(text="Status: invalid number in a target field")
+
+    def traj_stop(self):
+        self.node.dispatch_trajectory({"mode": "stop"})
+
+    def traj_home(self):
+        self.node.dispatch_trajectory({"mode": "home", "T": self.traj_duration()})
+
+    def traj_gripper(self, value):
+        self.node.dispatch_trajectory({"mode": "gripper", "value": float(value)})
+
+    # ------------------------------------------------------------------
     # Mode switching
     # ------------------------------------------------------------------
     def on_mode_change(self):
         mode = self.mode_var.get()
+        self._mode_cache = mode
         for m in MODE_ORDER:
             for frames in (self.slider_frames, self.const_frames, self.signal_frames):
                 frames[m].pack_forget()
@@ -537,6 +774,8 @@ class GUIApp:
     # ------------------------------------------------------------------
     def publish_static(self, mode):
         """One-shot publish for the non-streaming (position) modes."""
+        if self.node.traj_running:
+            return          # trajectory_node owns /joint_commands right now
         vals = self.values[mode]
         if mode == "FK_POS":
             self.sim_q = list(vals)
@@ -553,6 +792,8 @@ class GUIApp:
         rates it is given. Position is published first, so the FK node's
         joint_vel_cmd_cb / joint_acc_cmd_cb evaluate at the current posture.
         """
+        if self.node.traj_running:
+            return          # trajectory_node owns /joint_commands right now
         if mode == "FK_VEL":
             if self.integrate_var.get():
                 self.sim_q = integrate_velocity(self.sim_q, list(vals) + [0.0],
@@ -614,7 +855,7 @@ class GUIApp:
             dt = min(max(now - last, 1e-4), 0.2)
             last = now
 
-            mode = self.mode_var.get()
+            mode = self._mode_cache          # NOT mode_var.get(): wrong thread
             spec = MODE_SPECS[mode]
 
             try:
@@ -651,6 +892,16 @@ class GUIApp:
             text="qdot  (rad/s)   : " + "  ".join(f"{v:+.3f}" for v in self.node.resolved_qdot))
         self.lbl_qddot.config(
             text="qddot (rad/s^2) : " + "  ".join(f"{v:+.3f}" for v in self.node.resolved_qddot))
+
+        if not self.node.traj_seen:
+            txt = "Status: waiting for trajectory_node"
+        elif self.node.traj_running:
+            txt = (f"Status: RUNNING  {self.node.traj_mode}-space  "
+                   f"{self.node.traj_progress*100:5.1f}%")
+        else:
+            txt = "Status: idle"
+        self.lbl_traj_status.config(text=txt)
+
         self.root.after(100, self.update_live_display)
 
     def reset_all(self):

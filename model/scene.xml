@@ -87,13 +87,26 @@
     <!-- 3. PCBS ON CONVEYOR (Static geoms, zero impact on robot DOF)      -->
     <!-- ================================================================= -->
     <!-- Target PCB sitting on the Inspection Nest -->
-    <geom name="active_inspection_pcb" type="box" size="0.010 0.010 0.003" pos="-0.18 0.0 0.031" material="pcb_pass"/>
+    <body name="pcb_active" pos="-0.18 0.0 0.031">
+      <freejoint name="pcb_active_free"/>
+      <geom name="pcb_active_geom" type="box" size="0.010 0.010 0.003"
+            material="pcb_pass" mass="0.004" friction="0.7" priority="1"
+            solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    </body>
 
-    <!-- Queued PCB 1 (Incoming on conveyor at Y = +0.08) -->
-    <geom name="queued_pcb_rework" type="box" size="0.010 0.010 0.003" pos="-0.18 0.08 0.031" material="pcb_rework"/>
+    <body name="pcb_queued_1" pos="-0.18 0.08 0.031">
+      <freejoint name="pcb_q1_free"/>
+      <geom name="pcb_q1_geom" type="box" size="0.010 0.010 0.003"
+            material="pcb_rework" mass="0.004" friction="0.7" priority="1"
+            solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    </body>
 
-    <!-- Queued PCB 2 (Incoming on conveyor at Y = +0.16) -->
-    <geom name="queued_pcb_scrap" type="box" size="0.010 0.010 0.003" pos="-0.18 0.16 0.031" material="pcb_scrap"/>
+    <body name="pcb_queued_2" pos="-0.18 0.16 0.031">
+      <freejoint name="pcb_q2_free"/>
+      <geom name="pcb_q2_geom" type="box" size="0.010 0.010 0.003"
+            material="pcb_scrap" mass="0.004" friction="0.7" priority="1"
+            solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    </body>
 
   </worldbody> 
 </mujoco>

@@ -50,7 +50,10 @@ EXPECTED_JOINTS = [
     "gripper",
 ]
 
-PUBLISH_HZ = 50.0
+# Matched to trajectory_node's control rate. At 50 Hz against a 200 Hz
+# controller the error signal is frozen for four ticks at a time, which makes
+# the command sawtooth and the arm flicker.
+PUBLISH_HZ = 200.0
 
 
 def resolve_joints(model):
@@ -110,7 +113,17 @@ class MujocoBridge(Node):
 
     def on_command(self, msg):
         """Record the newest command. Superseded ones are dropped, not queued."""
-        self._pending = np.asarray(msg.data, dtype=float)
+        q = np.asarray(msg.data, dtype=float)
+        if q.size != self.n:
+            # Silently truncating a wrong-sized command drives the arm to a
+            # pose nobody asked for. Two projects sharing one ROS domain is
+            # how that happens, and it looks exactly like flicker.
+            self.get_logger().warn(
+                f"Ignoring /joint_commands with {q.size} values; this model has "
+                f"{self.n} joints. Another publisher is on the topic.",
+                throttle_duration_sec=2.0)
+            return
+        self._pending = q
 
     def apply_pending(self):
         """Apply the latest command, once per rendered frame."""
@@ -148,8 +161,41 @@ def run_viewer(xml_path, dynamics):
     frame_dt = 1.0 / 60.0          # match the display; syncing faster can tear
     next_frame = time.time()
 
+    # Wall time that data.time == 0 corresponds to. The sim is stepped to catch
+    # up with this, so sim time and wall time stay locked together.
+    sim_epoch = time.time()
+    # Catch-up budget per iteration. 50 steps (0.1 s of sim) was too tight: a
+    # transient pause leaves a deficit of a few hundred ms, the budget clears
+    # only 100 ms of it, and the remainder is forgiven - so sim time is lost
+    # that the machine was perfectly capable of making up. 250 steps is 0.5 s
+    # of sim per iteration, enough to absorb the pauses seen in practice.
+    MAX_CATCHUP = 250
+    # A deficit larger than this is not a hiccup - a window drag, a display
+    # sleep, a debugger pause. Chasing it would block the render for seconds,
+    # so it is forgiven in one go instead.
+    MAX_DEFICIT = 1.0              # s
+    # A residual smaller than this after the budget is noise; the next
+    # iteration clears it, and it is not worth a warning or a resync.
+    WARN_DEFICIT = 0.05            # s
+
+    # Real-time factor report. If the sim runs slower than wall time, the
+    # trajectory node's reference (indexed by wall clock) advances faster than
+    # the arm physically can, and the tracking error it reports is inflated by
+    # exactly that ratio. Knowing the number decides whether that matters.
+    rtf_wall0 = time.time()
+    rtf_sim0 = float(data.time)
+    rtf_next = rtf_wall0 + 5.0
+    resyncs = 0
+
     try:
         with mujoco.viewer.launch_passive(model, data) as viewer:
+            # Opening the window costs a few hundred ms. sim_epoch was set
+            # before that, so without this the loop starts already half a
+            # second behind and burns its first resync on nothing.
+            sim_epoch = time.time()
+            rtf_wall0, rtf_sim0 = time.time(), float(data.time)
+            rtf_next = rtf_wall0 + 5.0
+
             while viewer.is_running():
                 # Drain every pending callback, then apply only the newest
                 # command. Processing one per frame renders a backlog of stale
@@ -162,7 +208,46 @@ def run_viewer(xml_path, dynamics):
                 node.apply_pending()
 
                 if dynamics:
-                    mujoco.mj_step(model, data)
+                    # Step until SIM time catches up with WALL time. A single
+                    # mj_step per iteration advances the sim by
+                    # model.opt.timestep (0.002 s for this model) while the
+                    # iteration itself costs that plus the ROS drain and the
+                    # render, so the sim would run at a fraction of real time.
+                    # trajectory_node indexes its reference by wall clock, so a
+                    # slow sim appears as tracking error the controller never
+                    # caused.
+                    target = time.time() - sim_epoch
+                    deficit = target - float(data.time)
+
+                    if deficit > MAX_DEFICIT:
+                        # Not a hiccup. Forgive it rather than block the render.
+                        sim_epoch = time.time() - data.time
+                        resyncs += 1
+                        node.get_logger().warn(
+                            f"Sim clock stalled {deficit:.1f}s behind real time "
+                            f"(window drag, display sleep or similar); forgiving "
+                            f"it. Any trajectory running across this moment has "
+                            f"its timing corrupted - re-run it.",
+                            throttle_duration_sec=5.0)
+                    else:
+                        steps = 0
+                        while data.time < target and steps < MAX_CATCHUP:
+                            mujoco.mj_step(model, data)
+                            steps += 1
+
+                        # Exhausting the budget is only a problem if a
+                        # meaningful deficit SURVIVES it. A few ms left over is
+                        # cleared by the next iteration, with no lost sim time.
+                        behind = target - float(data.time)
+                        if steps >= MAX_CATCHUP and behind > WARN_DEFICIT:
+                            sim_epoch = time.time() - data.time
+                            resyncs += 1
+                            node.get_logger().warn(
+                                f"Physics is {behind*1000:.0f} ms behind real "
+                                f"time after {steps} catch-up steps; resyncing. "
+                                f"Tracking figures from this run understate the "
+                                f"controller.",
+                                throttle_duration_sec=5.0)
                 else:
                     mujoco.mj_forward(model, data)
 
@@ -170,7 +255,21 @@ def run_viewer(xml_path, dynamics):
                 if now >= next_frame:
                     viewer.sync()
                     next_frame = max(now, next_frame + frame_dt)
-                time.sleep(0.002)
+
+                if dynamics and now >= rtf_next:
+                    wall = now - rtf_wall0
+                    sim = float(data.time) - rtf_sim0
+                    rtf = sim / wall if wall > 0 else 0.0
+                    node.get_logger().info(
+                        f"real-time factor {rtf:.2f}x over the last {wall:.0f}s "
+                        f"({sim:.1f}s simulated), {resyncs} resync(s). "
+                        f"1.00x means wall clock and sim clock agree.")
+                    rtf_wall0, rtf_sim0, rtf_next = now, float(data.time), now + 5.0
+                    resyncs = 0
+                # Short sleep in dynamics mode: the catch-up loop needs to be
+                # polled often enough that it steps one or two at a time rather
+                # than in bursts.
+                time.sleep(0.001 if dynamics else 0.002)
     finally:
         node.destroy_node()
         rclpy.shutdown()

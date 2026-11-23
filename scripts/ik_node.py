@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Inverse Kinematics + Inverse Velocity + Inverse Acceleration Node
@@ -508,7 +509,20 @@ class InverseKinematicsNode(Node):
         res = inverse_acceleration_kinematics(self.q_current, self.qdot_current,
                                             a_des, step=self.fd_step)
         qddot = res['qddot']
-        # ... existing logging ...
+
+        self.get_logger().info(
+            f"[IAK] a_des ({a_des[0]:+.3f}, {a_des[1]:+.3f}, {a_des[2]:+.3f}) m/s^2 -> "
+            f"qddot {[round(float(v), 3) for v in qddot]} rad/s^2 | "
+            f"bias |Jdot*qdot| {np.linalg.norm(res['bias']):.4f} m/s^2 | "
+            f"residual {res['residual']:.4f}",
+            throttle_duration_sec=0.5
+        )
+        if res['scale'] < 1.0:
+            self.get_logger().warn(
+                f"[IAK] Joint accel limit hit: command scaled to "
+                f"{res['scale']*100:.0f}%", throttle_duration_sec=0.5
+            )
+
         self.acc_pub.publish(self._array_msg(qddot))
 
         if self.integrate_accel:
