@@ -65,9 +65,24 @@ TASK_PRESETS = [
     ("Above scrap bin",  (-0.245, -0.090, 0.055)),
 ]
 
-# Gripper joint range is [-1.60, 0.032]
-GRIP_OPEN = 0.0
-GRIP_CLOSED = -1.2
+# Gripper joint range is [-1.60, 0.032]. 0 is CLOSED (pads 7 mm apart) and
+# more negative opens it: -0.6 opens the pads to 39 mm, enough to straddle a
+# 20 mm board. (These two were swapped before.)
+GRIP_OPEN = -0.6
+GRIP_CLOSED = 0.0
+
+# Pick-and-place waypoints (joint-space, rad), computed on the MuJoCo model and
+# collision-checked along every leg, including while carrying a board.
+#   Ready : fixed finger pad 25 mm above the nest board, gripper open
+#   Grasp : pads around the board on the nest (then Close)
+#   bins  : board centre 50 mm above the bin (then Open to drop it)
+PICK_PRESETS = [
+    ("Ready (above nest)", (0.020, -0.409, -0.517, -1.357, 0.022)),
+    ("Grasp (at nest)",    (0.020, -0.406, -0.263, -1.106, 0.022)),
+    ("Pass bin (green)",   (-0.845, -0.602, -0.827, -1.794, 0.002)),
+    ("Rework bin (yellow)", (0.874, -0.602, -0.827, -1.794, -0.003)),
+    ("Scrap bin (red)",    (-0.332, -1.065, -1.406, -1.173, -1.108)),
+]
 
 # ==============================================================================
 # PURE HELPERS (no tk, no ROS - unit-testable on their own)
@@ -581,6 +596,15 @@ class GUIApp:
                    command=self.traj_copy_from_sliders).pack(side="left", padx=2)
         ttk.Button(jbtn, text="Zero",
                    command=lambda: self.traj_set_q([0.0] * 5)).pack(side="left", padx=2)
+
+        ttk.Label(self.traj_joint_frame, text="Pick & place presets:",
+                  font=("Helvetica", 9, "bold")).pack(anchor="w", pady=(6, 2))
+        pick_grid = ttk.Frame(self.traj_joint_frame)
+        pick_grid.pack(fill="x")
+        for idx, (name, q) in enumerate(PICK_PRESETS):
+            ttk.Button(pick_grid, text=name, width=18,
+                       command=lambda v=q: self.traj_set_q(v)
+                       ).grid(row=idx // 3, column=idx % 3, padx=2, pady=2, sticky="w")
 
         # ---- task-space goal ----
         self.traj_task_frame = ttk.LabelFrame(tab, text=" Target tool-tip position (m) ", padding=8)
