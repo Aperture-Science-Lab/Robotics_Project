@@ -17,7 +17,7 @@ Live feedback from the FK node (/current_ee_pose, /current_ee_velocity,
 /joint_acceleration_commands) is shown at the top.
 
 TRANSLATION ONLY: the Cartesian task space is position / velocity /
-acceleration of the tool tip. Orientation is not commanded.
+acceleration of the tool tip. Orientation is not commanded..
 """
 
 import rclpy
