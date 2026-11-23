@@ -397,6 +397,11 @@ class ForwardKinematicsNode(Node):
         self.last_q = None
         self.last_qdot = np.zeros(5)
         self.last_qddot = np.zeros(5)
+        # State of the acceleration estimate (see numeric_qddot)
+        self.acc_ref_qdot = None
+        self.acc_ref_stamp = None
+        self.qddot_filt = np.zeros(5)
+        self.acc_tau = 0.25      # s, low-pass time constant (command timing jitter is ~20%)
         self.last_stamp = None   # seconds, for numeric differentiation
 
         self.get_logger().info(
@@ -459,12 +464,28 @@ class ForwardKinematicsNode(Node):
         return (q - self.last_q) / dt
 
     def numeric_qddot(self, qdot, stamp):
-        if self.last_stamp is None:
+        """
+        Joint accelerations from successive joint velocities, low-pass filtered.
+
+        /joint_state arrives at 200 Hz but the velocity in it only changes when
+        a new command is applied (~50 Hz), so differencing every sample gives a
+        spike followed by zeros. Differentiate only when the velocity actually
+        changes, and smooth over acc_tau so the readout is steady.
+        """
+        if self.acc_ref_stamp is None:
+            self.acc_ref_qdot, self.acc_ref_stamp = qdot.copy(), stamp
             return np.zeros(5)
-        dt = stamp - self.last_stamp
-        if dt <= 1e-6 or dt > 1.0:
-            return self.last_qddot
-        return (qdot - self.last_qdot) / dt
+        dt = stamp - self.acc_ref_stamp
+        if np.array_equal(qdot, self.acc_ref_qdot):
+            if dt > 0.1:                          # velocity held constant: no acceleration
+                self.qddot_filt = np.zeros(5)
+                self.acc_ref_stamp = stamp
+            return self.qddot_filt
+        if 1e-6 < dt <= 1.0:
+            raw = (qdot - self.acc_ref_qdot) / dt
+            self.qddot_filt = self.qddot_filt + dt / (self.acc_tau + dt) * (raw - self.qddot_filt)
+        self.acc_ref_qdot, self.acc_ref_stamp = qdot.copy(), stamp
+        return self.qddot_filt
 
     # ------------------------------------------------------------------
     # Core computation
@@ -506,7 +527,7 @@ class ForwardKinematicsNode(Node):
         # Warn when the posture is close to a velocity-level singularity
         sigma_min = float(np.linalg.svd(J, compute_uv=False)[-1])
         if sigma_min < 1e-3:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Near-singular configuration (smallest singular value = {sigma_min:.2e})",
                 throttle_duration_sec=self.log_period
             )

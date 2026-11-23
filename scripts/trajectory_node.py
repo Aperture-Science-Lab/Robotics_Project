@@ -6,8 +6,9 @@ Two planners, one output topic:
 
   JOINT-SPACE   q_start -> q_end          quintic in joint space
                 reference q_ref, qdot_ref, qddot_ref
-                controller: 5 decoupled SISO PID loops, one per joint
-                output:     q_cmd = q_ref + PID(e, edot)
+                controller: 5 decoupled SISO fuzzy controllers, one per
+                            joint, (e, edot) -> joint velocity command
+                output:     qdot_cmd = qdot_ref + FLC(e, edot) -> integrate -> q_cmd
 
   TASK-SPACE    x_start -> x_end          straight line, quintic time profile
                 reference x_ref, xdot_ref, xddot_ref
@@ -18,9 +19,15 @@ Two planners, one output topic:
 Both publish /joint_commands (6 values: 5 arm joints + gripper), which
 mujoco_bridge.py writes into data.ctrl.
 
-IMPORTANT: run the bridge with --dynamics. In its default kinematic mode the
-arm lands exactly on the command every step, so the error signal is always
-zero and neither controller has anything to do.
+Both loops have the same structure: the fuzzy output is a VELOCITY added to
+the feedforward, and the sum is integrated into the position command. That
+integration is what makes the loops stable in both bridge modes, and it gives
+integral action (gravity sag is removed in --dynamics mode). After T the
+reference holds at the goal while the error settles.
+
+Run the bridge with --dynamics to see the controllers work. In kinematic mode
+the arm lands exactly on the command every step, so the error stays near zero
+and the plan is followed by feedforward alone - useful for checking the plan.
 
 Feedback is taken from /joint_state, i.e. from MEASURED state. Forward
 kinematics for the error signal is computed from q_meas, never from the last
@@ -78,16 +85,19 @@ GRIP_CLOSED = -1.2
 # clamped. Without this, a blocked joint lets q_cmd run away and the stored
 # error discharges as a lurch when the obstruction clears.
 MAX_LAG = 0.08                 # rad
-
-# Largest position correction the outer PID may add to q_ref. This bounds
-# integral windup WITHOUT referencing q_meas in the output path: clamping q_cmd
-# against the measured state couples the 200 Hz control loop to the 50 Hz
-# /joint_state staircase, so the command rides a window that only moves every
-# 20 ms and jumps when it does - measured at 25% of steps reversing direction,
-# which is what makes the arm flicker.
-CORR_MAX = 0.30                # rad
+# A <position kp kv> servo needs its target to lead the joint by kv/kp * qdot
+# just to move at qdot (kp=100, kv=10 in low_cost_robot_arm.xml), so that much
+# extra lead is allowed on top of MAX_LAG.
+SERVO_LEAD = 0.1               # s
 
 LIMIT_EPS = 1e-3               # rad; margin for "at a joint limit"
+
+# After T the reference holds at the goal and the loop keeps running until the
+# error is below tolerance, so the reported final error is the settled one and
+# not the lag at the instant the plan ends.
+SETTLE_MAX = 1.5               # s
+SETTLE_TOL_Q = 2e-3            # rad
+SETTLE_TOL_X = 1e-3            # m
 
 HOME_Q = np.zeros(N_JOINTS)
 
@@ -152,37 +162,18 @@ def task_space_trajectory(x_start, x_end, T, dt):
 # CONTROLLERS
 # ==============================================================================
 
-class JointPID:
-    """
-    Five decoupled SISO PID loops. Each joint sees only its own error; coupling
-    between joints is a disturbance each loop rejects on its own.
-
-    Output is a POSITION correction added to q_ref, because the MuJoCo
-    <position kp kv> actuators take a target angle. This is a cascade: an outer
-    position loop (here) around an inner PD servo (the actuator model).
-    """
-
-    def __init__(self, kp, ki, kd, n=N_JOINTS):
-        self.kp = np.broadcast_to(np.asarray(kp, dtype=float), (n,)).copy()
-        self.ki = np.broadcast_to(np.asarray(ki, dtype=float), (n,)).copy()
-        self.kd = np.broadcast_to(np.asarray(kd, dtype=float), (n,)).copy()
-        self.integral = np.zeros(n)
-
-    def reset(self):
-        self.integral[:] = 0.0
-
-    def __call__(self, e, edot, dt, freeze=False):
-        if not freeze:
-            self.integral += e * dt
-        return self.kp * e + self.ki * self.integral + self.kd * edot
-
-
 class FuzzyAxisController:
     """
-    Zero-order Sugeno fuzzy controller for ONE Cartesian axis.
+    Zero-order Sugeno fuzzy controller for ONE axis: a Cartesian axis in
+    task space, or one joint in joint space.
 
     Inputs  : e (position error on this axis), edot (its rate)
-    Output  : a velocity command for this axis [m/s]
+    Output  : a velocity command for this axis [m/s, or rad/s for a joint]
+
+    Near zero the rule base behaves like u ~ Ku*(e/Ke + edot/Kde), saturating
+    at Ku: Ku/Ke acts as a proportional gain [1/s] and Ku/Kde as a derivative
+    gain. Because the output is a velocity that gets integrated, the loop also
+    has integral action.
 
     Three of these, one per axis, instead of one MIMO controller: a 3-input
     MIMO rule base with 5 membership functions per input needs 5^3 = 125 rules
@@ -191,9 +182,8 @@ class FuzzyAxisController:
     to duplicate it.
 
     Ke, Kde, Ku are the normalisation and output scaling factors. They behave
-    exactly like Kp, Kd and an output gain, so they are reported alongside the
-    PID gains rather than hidden: an FLC tuned on these against an untuned PID
-    is not a comparison of control laws.
+    like Kp, Kd and an output gain, so they are reported at startup rather
+    than hidden.
     """
 
     LABELS = ("NB", "NS", "ZE", "PS", "PB")
@@ -241,21 +231,25 @@ class TrajectoryNode(Node):
         super().__init__('trajectory_node')
 
         # ---- parameters ----
-        self.declare_parameter('kp', [2.0, 2.0, 2.0, 1.5, 1.5])
-        self.declare_parameter('ki', [1.0, 1.0, 1.0, 0.5, 0.5])
-        self.declare_parameter('kd', [0.05, 0.05, 0.05, 0.02, 0.02])
+        # Joint-space fuzzy controllers (one per joint): P ~ Ku/Ke = 10 1/s,
+        # D ~ Ku/Kde = 0.25. The D gain stays well below 1 because in kinematic
+        # mode the measured rate IS the commanded rate one step later.
+        self.declare_parameter('flc_joint_ke', 0.05)    # rad    : error at full scale
+        self.declare_parameter('flc_joint_kde', 2.0)    # rad/s  : rate at full scale
+        self.declare_parameter('flc_joint_ku', 0.5)     # rad/s  : max output
+        # Task-space fuzzy controllers (one per Cartesian axis)
         self.declare_parameter('flc_ke', 0.02)      # m      : error at full scale
         self.declare_parameter('flc_kde', 0.10)     # m/s    : rate at full scale
         self.declare_parameter('flc_ku', 0.08)      # m/s    : max output
         self.declare_parameter('k_null', 1.0)
         self.declare_parameter('log_dir', '')
 
-        kp = np.array(self.get_parameter('kp').value, dtype=float)
-        ki = np.array(self.get_parameter('ki').value, dtype=float)
-        kd = np.array(self.get_parameter('kd').value, dtype=float)
         self.k_null = float(self.get_parameter('k_null').value)
 
-        self.pid = JointPID(kp, ki, kd)
+        jke = float(self.get_parameter('flc_joint_ke').value)
+        jkde = float(self.get_parameter('flc_joint_kde').value)
+        jku = float(self.get_parameter('flc_joint_ku').value)
+        self.flc_joint = [FuzzyAxisController(jke, jkde, jku) for _ in range(N_JOINTS)]
         ke = float(self.get_parameter('flc_ke').value)
         kde = float(self.get_parameter('flc_kde').value)
         ku = float(self.get_parameter('flc_ku').value)
@@ -266,25 +260,12 @@ class TrajectoryNode(Node):
         self.qdot_meas = np.zeros(N_JOINTS)
         self.gripper_meas = 0.0
         self.have_state = False
-        # The control loop runs faster than /joint_state arrives. Recomputing
-        # the feedback term every tick lets the error grow while q_meas is
-        # frozen, so the command runs ahead of the reference and snaps back when
-        # fresh feedback lands - a sawtooth at the feedback rate, which the arm
-        # shows as flicker (measured: 25% of command steps reversing direction
-        # at 200 Hz control against 50 Hz feedback). The feedback term is
-        # therefore recomputed only when the measurement changes, and held in
-        # between, while q_ref keeps advancing every tick.
-        self.fb_seq = 0
 
         # ---- execution state ----
         self.mode = None            # 'joint' | 'task' | None
         self.traj = None            # dict of planned arrays
         self.t0 = None
         self.q_cmd = np.zeros(N_JOINTS)
-        self.cmd_saturated = False  # previous step hit an anti-windup clamp
-        self.correction = np.zeros(N_JOINTS)   # held between feedback updates
-        self._fb_seq_used = -1
-        self._fb_time = None
         self.grip_cmd = GRIP_OPEN
         self.log_rows = []
         self.log_dir = self.get_parameter('log_dir').value or str(Path.cwd())
@@ -305,10 +286,10 @@ class TrajectoryNode(Node):
 
         self.get_logger().info(
             f"Trajectory node ready at {CONTROL_HZ:.0f} Hz.\n"
-            f"  PID  kp={kp} ki={ki} kd={kd}\n"
-            f"  FLC  {self.flc[0].describe()} (same on all three axes)\n"
-            f"  Run mujoco_bridge.py with --dynamics, or the error signal is "
-            f"identically zero and neither controller does anything.")
+            f"  Joint FLC  {self.flc_joint[0].describe()} (same on all five joints)\n"
+            f"  Task  FLC  {self.flc[0].describe()} (same on all three axes)\n"
+            f"  Run mujoco_bridge.py with --dynamics to see the controllers work; "
+            f"in kinematic mode the error stays near zero.")
 
     # ------------------------------------------------------------------
     # Feedback
@@ -317,7 +298,6 @@ class TrajectoryNode(Node):
         if len(msg.position) >= N_JOINTS:
             self.q_meas = np.array(msg.position[:N_JOINTS], dtype=float)
             self.have_state = True
-            self.fb_seq += 1
         if len(msg.position) >= N_JOINTS + 1:
             self.gripper_meas = float(msg.position[N_JOINTS])
         if len(msg.velocity) >= N_JOINTS:
@@ -345,7 +325,7 @@ class TrajectoryNode(Node):
             return
 
         if not self.have_state:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 "No /joint_state yet - is mujoco_bridge.py running?")
             return
 
@@ -406,11 +386,11 @@ class TrajectoryNode(Node):
             worst_sigma = min(worst_sigma, sigma)
 
         if worst_err > 0.005:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Task-space path not fully reachable: worst IK residual "
                 f"{worst_err*1000:.1f} mm. The tool will leave the line.")
         if worst_sigma < 0.02:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Task-space path passes near a singularity: sigma_min "
                 f"{worst_sigma:.4f}. Damping will engage and tracking will "
                 f"degrade there.")
@@ -427,11 +407,6 @@ class TrajectoryNode(Node):
             f"sigma_min {worst_sigma:.4f}")
 
     def begin_execution(self):
-        self.pid.reset()
-        self.cmd_saturated = False
-        self.correction = np.zeros(N_JOINTS)
-        self._fb_seq_used = -1
-        self._fb_time = None
         self.q_cmd = self.q_meas.copy()         # anchor the integrator
         self.log_rows = []
         self.t0 = time.time()
@@ -456,9 +431,7 @@ class TrajectoryNode(Node):
             return
 
         elapsed = time.time() - self.t0
-        idx = int(round(elapsed / DT))
-        done = idx >= self.traj['n']
-        idx = min(idx, self.traj['n'] - 1)
+        idx = min(int(round(elapsed / DT)), self.traj['n'] - 1)
 
         if self.mode == 'joint':
             row = self.tick_joint_space(idx, elapsed)
@@ -468,14 +441,64 @@ class TrajectoryNode(Node):
         self.log_rows.append(row)
         self.publish_command()
 
-        if done:
-            err = np.abs(self.traj['q'][-1] - self.q_meas).max() \
-                if self.mode == 'joint' \
-                else np.abs(self.traj['x'][-1] - forward_kinematics(self.q_meas)).max()
-            unit = 'rad' if self.mode == 'joint' else 'm'
-            self.get_logger().info(
-                f"Trajectory complete. Final |error| = {err:.5f} {unit}")
-            self.finish()
+        # Past the end of the plan the reference holds at the goal; finish
+        # once the arm has settled there (or give up after SETTLE_MAX).
+        t_over = elapsed - self.traj['t'][-1]
+        if t_over >= 0.0:
+            if self.mode == 'joint':
+                err = float(np.abs(self.traj['q'][-1] - self.q_meas).max())
+                tol, unit = SETTLE_TOL_Q, 'rad'
+            else:
+                err = float(np.abs(self.traj['x'][-1]
+                                   - forward_kinematics(self.q_meas)).max())
+                tol, unit = SETTLE_TOL_X, 'm'
+            if err < tol or t_over >= SETTLE_MAX:
+                how = (f"settled in {t_over:.2f}s" if err < tol
+                       else f"NOT settled after {SETTLE_MAX:.1f}s")
+                self.get_logger().info(
+                    f"Trajectory complete ({how}). Final |error| = {err:.5f} {unit}")
+                self.finish()
+
+    # ------------------------------------------------------------------
+    def integrate_command(self, qdot_cmd, freeze_whole_step):
+        """
+        q_cmd += qdot_cmd * DT, shared by both loops.
+
+          * Speed limit: scale uniformly, not per joint; clamping joints one
+            at a time bends the path.
+          * Joint limits: task space freezes the whole step if ANY joint would
+            saturate, which holds the tool on its line; joint space has no line
+            to keep, so it simply clips each joint.
+          * Lead bound: the command may lead the measured arm by at most
+            MAX_LAG plus the lead the position servo needs to move at that
+            speed (kv/kp * qdot), so a blocked joint cannot store up a lurch.
+            Only components that would grow the lead further are blocked.
+
+        Returns (qdot_cmd, frozen, scale).
+        """
+        over = float(np.max(np.abs(qdot_cmd) / QDOT_MAX))
+        scale = 1.0
+        if over > 1.0:
+            scale = 1.0 / over
+            qdot_cmd = qdot_cmd * scale
+
+        q_new = self.q_cmd + qdot_cmd * DT
+        frozen = False
+        if freeze_whole_step:
+            frozen = bool(((q_new <= Q_MIN + LIMIT_EPS) |
+                           (q_new >= Q_MAX - LIMIT_EPS)).any())
+            if frozen:
+                qdot_cmd = np.zeros(N_JOINTS)
+                q_new = self.q_cmd
+        self.q_cmd = q_new
+
+        lag = self.q_cmd - self.q_meas
+        allowed = MAX_LAG + SERVO_LEAD * np.abs(qdot_cmd)
+        blocked = (np.abs(lag) > allowed) & (np.sign(qdot_cmd) == np.sign(lag))
+        if blocked.any():
+            self.q_cmd = np.where(blocked, self.q_cmd - qdot_cmd * DT, self.q_cmd)
+        self.q_cmd = np.clip(self.q_cmd, Q_MIN, Q_MAX)
+        return qdot_cmd, frozen, scale
 
     # ------------------------------------------------------------------
     def tick_joint_space(self, idx, elapsed):
@@ -483,52 +506,24 @@ class TrajectoryNode(Node):
         Joint-space loop. The error signal is formed in joint space, so the
         controller never sees Cartesian coordinates.
 
-            e     = q_ref - q_meas
-            q_cmd = q_ref + PID(e, edot)
+            e        = q_ref - q_meas
+            qdot_cmd = qdot_ref + [FLC_1(e_1, edot_1), ..., FLC_5(e_5, edot_5)]
+            q_cmd    = q_cmd + qdot_cmd dt
         """
         q_ref = self.traj['q'][idx]
         qdot_ref = self.traj['dq'][idx]
 
-        # Recompute the feedback term only when the measurement is new, and
-        # hold it otherwise. q_ref still advances every tick, so the command
-        # stays smooth between feedback updates instead of sawtoothing.
-        if self.fb_seq != self._fb_seq_used:
-            now = time.time()
-            dt_fb = (DT if self._fb_time is None
-                     else float(np.clip(now - self._fb_time, 1e-4, 0.2)))
-            self._fb_time = now
-            self._fb_seq_used = self.fb_seq
+        e = q_ref - self.q_meas
+        edot = qdot_ref - self.qdot_meas
 
-            e = q_ref - self.q_meas
-            edot = qdot_ref - self.qdot_meas
+        # Five decoupled SISO fuzzy controllers, one per joint
+        fb = np.array([self.flc_joint[i](e[i], edot[i]) for i in range(N_JOINTS)])
+        _, _, scale = self.integrate_command(qdot_ref + fb, freeze_whole_step=False)
+        freeze = False
 
-            # Anti-windup: freeze the integrator on a joint limit, and when the
-            # previous step's correction was already saturated. This arm's
-            # frictionloss (0.2 N.m) exceeds the gravity torque at most
-            # postures, so a stalled joint is a real event.
-            at_limit = ((self.q_cmd <= Q_MIN + LIMIT_EPS) |
-                        (self.q_cmd >= Q_MAX - LIMIT_EPS))
-            freeze = bool(at_limit.any() or self.cmd_saturated)
-
-            # Bound the CORRECTION, not the command's distance from q_meas: the
-            # output stays q_ref + (bounded correction), so it always tracks the
-            # reference all the way to the target.
-            correction = self.pid(e, edot, dt_fb, freeze=freeze)
-            corr = np.clip(correction, -CORR_MAX, CORR_MAX)
-            self.cmd_saturated = bool(
-                not np.allclose(corr, correction, atol=1e-12))
-            self.correction = corr
-        else:
-            e = q_ref - self.q_meas
-            edot = qdot_ref - self.qdot_meas
-            freeze = self.cmd_saturated
-
-        self.q_cmd = np.clip(q_ref + self.correction, Q_MIN, Q_MAX)
-
-        if self.cmd_saturated:
-            self.get_logger().warn(
-                f"PID correction saturated at {CORR_MAX} rad; the arm is not "
-                f"following its reference. Integrator held.",
+        if scale < 1.0:
+            self.get_logger().warning(
+                f"Joint rate limit hit: command scaled to {scale*100:.0f}%",
                 throttle_duration_sec=1.0)
 
         # FK of the REFERENCE: the Cartesian path the joint-space plan implies,
@@ -582,35 +577,8 @@ class TrajectoryNode(Node):
             qdot_cmd = qdot_cmd + N @ (-self.k_null *
                                        joint_limit_gradient(self.q_meas))
 
-        # Scale uniformly, not per joint: clamping joints one at a time bends
-        # the Cartesian path, which is the one thing task-space planning buys.
-        over = np.abs(qdot_cmd) / QDOT_MAX
-        scale = 1.0
-        if over.max() > 1.0:
-            scale = 1.0 / over.max()
-            qdot_cmd = qdot_cmd * scale
-
-        # Integrate, freezing the whole step if ANY joint would saturate.
-        # Freezing all of them holds the Cartesian direction; freezing one
-        # would steer the tool off the line.
-        q_new = self.q_cmd + qdot_cmd * DT
-        frozen = bool(((q_new <= Q_MIN + LIMIT_EPS) |
-                       (q_new >= Q_MAX - LIMIT_EPS)).any())
-        if not frozen:
-            self.q_cmd = q_new
-        else:
-            qdot_cmd = np.zeros(N_JOINTS)
-
-        # Bound how far the command may lead reality, so a blocked joint
-        # cannot store up a lurch. Block only the components that would push
-        # the lag further past the bound - hard-clamping q_cmd to q_meas on
-        # every tick instead makes the command chase the 50 Hz feedback
-        # staircase, which the arm shows as flicker.
-        lag = self.q_cmd - self.q_meas
-        blocked = (np.abs(lag) > MAX_LAG) & (np.sign(qdot_cmd) == np.sign(lag))
-        if blocked.any():
-            self.q_cmd = np.where(blocked, self.q_cmd - qdot_cmd * DT, self.q_cmd)
-        self.q_cmd = np.clip(self.q_cmd, Q_MIN, Q_MAX)
+        # Speed scaling, whole-step freeze at joint limits, lead bound
+        qdot_cmd, frozen, scale = self.integrate_command(qdot_cmd, freeze_whole_step=True)
 
         # FK of the command, for the same desired-vs-achieved comparison the
         # joint-space branch produces.
@@ -620,15 +588,15 @@ class TrajectoryNode(Node):
                                 x_des=x_desired, x_meas=x_meas)
 
         if frozen:
-            self.get_logger().warn("Integration frozen: joint at limit",
+            self.get_logger().warning("Integration frozen: joint at limit",
                                    throttle_duration_sec=1.0)
         if lam > 0.0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Damping {lam:.4f} active (sigma_min {sigma_min:.4f}); "
                 f"the tool is not tracking the line exactly",
                 throttle_duration_sec=1.0)
         if scale < 1.0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Joint rate limit hit: command scaled to {scale*100:.0f}%",
                 throttle_duration_sec=1.0)
 

@@ -328,6 +328,58 @@ def inverse_velocity_kinematics(q, v_des, k_null=1.0, respect_limits=True):
         'scale': scale,
     }
 
+
+def _leaves_singularity(q, qdot, eps=1e-4):
+    """True if a small step along qdot increases the smallest singular value of J."""
+    n = float(np.linalg.norm(qdot))
+    if n < 1e-12:
+        return False
+    sigma = lambda qq: np.linalg.svd(jacobian(qq), compute_uv=False)[-1]
+    return sigma(q + eps * qdot / n) > sigma(q)
+
+
+def boundary_stop(q, qdot, v_des, achieved, dt, max_off_axis=0.2):
+    """
+    Stop at the workspace boundary instead of drifting off-axis.
+
+    Two cases end the motion:
+      * direction: near a singularity the damped solution bends the achieved
+        velocity away from v_des; if its off-axis part exceeds max_off_axis of
+        |v_des| (or it points backwards), the command is dropped.
+      * joint limit: if this step would push a joint past its limit, the whole
+        qdot is scaled down uniformly (keeping its Cartesian direction) so that
+        joint lands exactly on the limit; the next step then stops. Clipping
+        joints one by one instead is what made the other joints carry on and
+        move the tool in directions that were never commanded.
+
+    Commands that move back away from the boundary are unaffected: the
+    direction check only applies while heading deeper into the singularity
+    (smallest singular value shrinking), otherwise the arm could never leave.
+    Returns (qdot, reason) where reason is None if nothing was limited.
+    """
+    speed = float(np.linalg.norm(v_des))
+    if speed < 1e-9:
+        return qdot, None
+
+    u = v_des / speed
+    along = float(achieved @ u)
+    off = float(np.linalg.norm(achieved - along * u))
+    if along <= 0.0 or (off > max_off_axis * speed and not _leaves_singularity(q, qdot)):
+        return np.zeros_like(qdot), (
+            f"commanded direction not reachable here "
+            f"(off-axis {off / speed * 100:.0f}% of command)")
+
+    if dt > 0.0:
+        step = qdot * dt
+        room = np.where(step > 0.0, Q_MAX - q, Q_MIN - q)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            frac = np.where(np.abs(step) > 1e-12, room / step, np.inf)
+        s = float(np.clip(frac.min(), 0.0, 1.0))
+        if s < 1.0:
+            return qdot * s, f"joint {int(np.argmin(frac)) + 1} at its limit"
+
+    return qdot, None
+
 # ==============================================================================
 # INVERSE ACCELERATION KINEMATICS
 # ==============================================================================
@@ -452,7 +504,7 @@ class InverseKinematicsNode(Node):
                 f"[IK SUCCESS] Target ({tx:+.3f}, {ty:+.3f}, {tz:+.3f}) -> Err: {err_mm:.1f} mm | Joints: {[round(float(v), 2) for v in q_sol]}"
             )
         else:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"[IK REACH LIMIT] Target ({tx:+.3f}, {ty:+.3f}, {tz:+.3f}) closest err: {err_mm:.1f} mm"
             )
 
@@ -476,23 +528,29 @@ class InverseKinematicsNode(Node):
             f"residual {res['residual']*1000:.2f} mm/s | sigma_min {res['sigma_min']:.3e}"
         )
         if res['damping'] > 0.0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"[IVK] Near singularity: damping {res['damping']:.4f} applied, "
                 f"task velocity not tracked exactly"
             )
         if res['scale'] < 1.0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"[IVK] Joint speed limit hit: command scaled to {res['scale']*100:.0f}%"
             )
+
+        now = self.get_clock().now().nanoseconds * 1e-9
+        dt = 0.0 if self.last_vel_time is None else now - self.last_vel_time
+        self.last_vel_time = now
+
+        qdot, reason = boundary_stop(self.q_current, qdot, v_des, res['achieved'], dt)
+        if reason:
+            self.get_logger().warning(f"[IVK] Stopped at boundary: {reason}",
+                                      throttle_duration_sec=1.0)
 
         self.vel_pub.publish(self._array_msg(qdot))
         self.qdot_current = qdot
 
         # Resolved-rate servoing: integrate qdot into a position command
         if self.integrate_velocity:
-            now = self.get_clock().now().nanoseconds * 1e-9
-            dt = 0.0 if self.last_vel_time is None else now - self.last_vel_time
-            self.last_vel_time = now
             if 0.0 < dt < 0.5:
                 q_next = np.clip(self.q_current + qdot * dt, Q_MIN, Q_MAX)
                 self.q_current = q_next
@@ -506,7 +564,22 @@ class InverseKinematicsNode(Node):
     def on_target_accel(self, msg: Vector3Stamped):
         a_des = np.array([msg.vector.x, msg.vector.y, msg.vector.z])
 
-        res = inverse_acceleration_kinematics(self.q_current, self.qdot_current,
+        now = self.get_clock().now().nanoseconds * 1e-9
+        dt = 0.0 if self.last_acc_time is None else now - self.last_acc_time
+        self.last_acc_time = now
+
+        # The acceleration integrator keeps its own (q, qdot) for the whole
+        # stream. Reading them back from /joint_state every cycle reset the
+        # velocity to zero (the kinematic bridge reports qvel = 0), so the arm
+        # never sped up and could not coast. Re-seed from the measured posture,
+        # at rest, whenever a new stream starts.
+        if not 0.0 < dt < 0.5:
+            self.acc_q = self.q_current.copy()
+            self.acc_qdot = np.zeros(5)
+            self.acc_vref = np.zeros(3)   # Cartesian velocity built up from a_des
+            dt = 0.0
+
+        res = inverse_acceleration_kinematics(self.acc_q, self.acc_qdot,
                                             a_des, step=self.fd_step)
         qddot = res['qddot']
 
@@ -518,7 +591,7 @@ class InverseKinematicsNode(Node):
             throttle_duration_sec=0.5
         )
         if res['scale'] < 1.0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"[IAK] Joint accel limit hit: command scaled to "
                 f"{res['scale']*100:.0f}%", throttle_duration_sec=0.5
             )
@@ -526,20 +599,27 @@ class InverseKinematicsNode(Node):
         self.acc_pub.publish(self._array_msg(qddot))
 
         if self.integrate_accel:
-            now = self.get_clock().now().nanoseconds * 1e-9
-            dt = 0.0 if self.last_acc_time is None else now - self.last_acc_time
-            self.last_acc_time = now
-            if 0.0 < dt < 0.5:
-                qdot_next = np.clip(self.qdot_current + qddot * dt,
-                                    -QDOT_MAX, QDOT_MAX)
-                q_next = np.clip(self.q_current + qdot_next * dt, Q_MIN, Q_MAX)
+            if dt > 0.0:
+                qdot_next = self.acc_qdot + qddot * dt
+                # Uniform speed scaling keeps the direction (per-joint clipping bends it)
+                over = float(np.max(np.abs(qdot_next) / QDOT_MAX))
+                if over > 1.0:
+                    qdot_next = qdot_next / over
+                self.acc_vref = self.acc_vref + a_des * dt
 
-                # a joint at a position limit has its rate zeroed, or it winds up
-                at_limit = (q_next <= Q_MIN) | (q_next >= Q_MAX)
-                qdot_next[at_limit] = 0.0
+                # Stop at the boundary, as in velocity mode, judged against the
+                # velocity the commanded accelerations have built up
+                qdot_next, reason = boundary_stop(self.acc_q, qdot_next, self.acc_vref,
+                                                  jacobian(self.acc_q) @ qdot_next, dt)
+                q_next = np.clip(self.acc_q + qdot_next * dt, Q_MIN, Q_MAX)
+                if reason:
+                    self.get_logger().warning(f"[IAK] Stopped at boundary: {reason}",
+                                              throttle_duration_sec=1.0)
+                    qdot_next = np.zeros(5)          # come to rest at the boundary
+                    self.acc_vref = np.zeros(3)
 
+                self.acc_q, self.acc_qdot = q_next, qdot_next
                 self.qdot_current = qdot_next
-                self.q_current = q_next
 
                 self.vel_pub.publish(self._array_msg(qdot_next))
                 cmd = Float64MultiArray()

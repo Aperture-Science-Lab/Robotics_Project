@@ -99,6 +99,14 @@ class MujocoBridge(Node):
 
         self._pending = None          # latest command only; applied per frame
 
+        # Kinematic mode teleports qpos, so MuJoCo's qvel stays 0 and the arm
+        # would always report standing still. Instead report the joint rate the
+        # commands actually produce: displacement between applied commands over
+        # the time between them, back to 0 once commands stop arriving.
+        self._kin_qvel = np.zeros(self.n)
+        self._last_q = None
+        self._last_apply = None
+
         self.create_subscription(
             Float64MultiArray, "/joint_commands", self.on_command, 1)
         self.pub = self.create_publisher(JointState, "/joint_state", 10)
@@ -108,7 +116,7 @@ class MujocoBridge(Node):
         self.get_logger().info(f"MuJoCo bridge up in {mode} mode.")
         self.get_logger().info(f"Driving joints: {', '.join(self.names)}")
         if dynamics and model.nu == 0:
-            self.get_logger().warn(
+            self.get_logger().warning(
                 "Model declares no actuators; --dynamics will not move the arm.")
 
     def on_command(self, msg):
@@ -118,7 +126,7 @@ class MujocoBridge(Node):
             # Silently truncating a wrong-sized command drives the arm to a
             # pose nobody asked for. Two projects sharing one ROS domain is
             # how that happens, and it looks exactly like flicker.
-            self.get_logger().warn(
+            self.get_logger().warning(
                 f"Ignoring /joint_commands with {q.size} values; this model has "
                 f"{self.n} joints. Another publisher is on the topic.",
                 throttle_duration_sec=2.0)
@@ -138,13 +146,24 @@ class MujocoBridge(Node):
             for i in range(k):
                 self.data.qpos[self.qadr[i]] = q[i]
                 self.data.qvel[self.vadr[i]] = 0.0
+            now = time.time()
+            if self._last_apply is not None and 0.0 < now - self._last_apply < 0.2:
+                self._kin_qvel = (q[:self.n] - self._last_q) / (now - self._last_apply)
+            else:
+                self._kin_qvel = np.zeros(self.n)    # first command after idle: a jump, not motion
+            self._last_q, self._last_apply = q[:self.n].copy(), now
 
     def publish_state(self):
         msg = JointState()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.name = list(self.names)
         msg.position = [float(self.data.qpos[a]) for a in self.qadr]
-        msg.velocity = [float(self.data.qvel[a]) for a in self.vadr]
+        if self.dynamics:
+            msg.velocity = [float(self.data.qvel[a]) for a in self.vadr]
+        else:
+            if self._last_apply is None or time.time() - self._last_apply > 0.1:
+                self._kin_qvel = np.zeros(self.n)    # commands stopped: arm is at rest
+            msg.velocity = [float(v) for v in self._kin_qvel]
         self.pub.publish(msg)
 
 
@@ -223,7 +242,7 @@ def run_viewer(xml_path, dynamics):
                         # Not a hiccup. Forgive it rather than block the render.
                         sim_epoch = time.time() - data.time
                         resyncs += 1
-                        node.get_logger().warn(
+                        node.get_logger().warning(
                             f"Sim clock stalled {deficit:.1f}s behind real time "
                             f"(window drag, display sleep or similar); forgiving "
                             f"it. Any trajectory running across this moment has "
@@ -242,7 +261,7 @@ def run_viewer(xml_path, dynamics):
                         if steps >= MAX_CATCHUP and behind > WARN_DEFICIT:
                             sim_epoch = time.time() - data.time
                             resyncs += 1
-                            node.get_logger().warn(
+                            node.get_logger().warning(
                                 f"Physics is {behind*1000:.0f} ms behind real "
                                 f"time after {steps} catch-up steps; resyncing. "
                                 f"Tracking figures from this run understate the "

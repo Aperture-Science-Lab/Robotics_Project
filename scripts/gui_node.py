@@ -348,6 +348,7 @@ class GUIApp:
         # Integrator state for the FK velocity / acceleration modes
         self.sim_q = [0.0] * 6
         self.sim_qdot = [0.0] * 5
+        self.stream_hold_until = 0.0    # set by reset_all
 
         # ---------------- Live feedback ----------------
         feedback_frame = ttk.LabelFrame(root, text=" Live End-Effector State (from FK node) ", padding=8)
@@ -528,7 +529,7 @@ class GUIApp:
         Front end for trajectory_node.py. The GUI only SENDS a goal; the
         planning, the controller and the loop closure all live in that node.
 
-        Joint-space -> quintic in joint space, 5 decoupled SISO PID loops.
+        Joint-space -> quintic in joint space, 5 decoupled SISO fuzzy controllers.
         Task-space  -> straight line + quintic timing, 3 decoupled SISO fuzzy
                        controllers on the Cartesian axes, then J# to joint rates.
         """
@@ -792,8 +793,8 @@ class GUIApp:
         rates it is given. Position is published first, so the FK node's
         joint_vel_cmd_cb / joint_acc_cmd_cb evaluate at the current posture.
         """
-        if self.node.traj_running:
-            return          # trajectory_node owns /joint_commands right now
+        if self.node.traj_running or time.time() < self.stream_hold_until:
+            return          # trajectory_node owns /joint_commands, or a reset is landing
         if mode == "FK_VEL":
             if self.integrate_var.get():
                 self.sim_q = integrate_velocity(self.sim_q, list(vals) + [0.0],
@@ -916,12 +917,16 @@ class GUIApp:
         self.sim_q = [0.0] * 6
         self.sim_qdot = [0.0] * 5
 
+        # Pause streaming briefly: in the IK rate modes the IK node would
+        # otherwise re-publish the old posture and override the zero command.
+        self.stream_hold_until = time.time() + 0.5
+
         self.node.dispatch_fk_command([0.0] * 6)
         self.node.dispatch_joint_velocities([0.0] * 5)
         self.node.dispatch_joint_accelerations([0.0] * 5)
-        self.node.dispatch_target_velocity(0.0, 0.0, 0.0)
-        self.node.dispatch_target_accel(0.0, 0.0, 0.0)
-        self.node.dispatch_ik_command(*HOME_XYZ)
+        # Only sync the IK target; publishing it would make the IK node move
+        # the arm to HOME_XYZ instead of leaving it at zero.
+        self.node.current_cartesian_values.update(X=HOME_XYZ[0], Y=HOME_XYZ[1], Z=HOME_XYZ[2])
 
 
 def main():
