@@ -12,7 +12,7 @@ Orientation / angular velocity / angular acceleration are deliberately NOT
 computed, so every Jacobian in this file is 3x5.
 
     v = J(q) qdot
-    a = J(q) qddot + Jdot(q, qdot) qdot
+    a = J(q) qddot + Jdot(q, qdot) qdot  fr
 """
 
 import sys

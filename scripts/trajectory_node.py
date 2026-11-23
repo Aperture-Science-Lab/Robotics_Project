@@ -92,6 +92,8 @@ SERVO_LEAD = 0.1               # s
 
 LIMIT_EPS = 1e-3               # rad; margin for "at a joint limit"
 
+MIN_TOOL_Z = 0.02              # m; warn when a joint-space plan dips the tool below this
+
 # After T the reference holds at the goal and the loop keeps running until the
 # error is below tolerance, so the reported final error is the settled one and
 # not the lag at the instant the plan ends.
@@ -238,8 +240,8 @@ class TrajectoryNode(Node):
         self.declare_parameter('flc_joint_kde', 2.0)    # rad/s  : rate at full scale
         self.declare_parameter('flc_joint_ku', 0.5)     # rad/s  : max output
         # Task-space fuzzy controllers (one per Cartesian axis)
-        self.declare_parameter('flc_ke', 0.02)      # m      : error at full scale
-        self.declare_parameter('flc_kde', 0.10)     # m/s    : rate at full scale
+        self.declare_parameter('flc_ke', 0.01)      # m      : error at full scale  (P ~ 8 1/s)
+        self.declare_parameter('flc_kde', 0.30)     # m/s    : rate at full scale  (D ~ 0.27)
         self.declare_parameter('flc_ku', 0.08)      # m/s    : max output
         self.declare_parameter('k_null', 1.0)
         self.declare_parameter('log_dir', '')
@@ -358,6 +360,16 @@ class TrajectoryNode(Node):
         q_start = self.q_meas.copy()            # start from where the arm IS
 
         t, q, dq, ddq = plan_joint_space_trajectory(q_start, q_end, T, DT)
+
+        # Joint angles say nothing obvious about where the tool goes. A plan
+        # through the table is invisible in kinematic mode (the arm passes
+        # through it) and ends in a collision in --dynamics mode.
+        z_min = min(forward_kinematics(q[i])[2] for i in range(0, len(t), max(1, len(t) // 50)))
+        if z_min < MIN_TOOL_Z:
+            self.get_logger().warning(
+                f"Joint-space path drives the tool tip down to z = {z_min*1000:.0f} mm "
+                f"(table at 0). In --dynamics mode the arm will stop on contact "
+                f"and the trajectory will not reach its goal.")
 
         self.mode = 'joint'
         self.traj = {'t': t, 'q': q, 'dq': dq, 'ddq': ddq, 'T': T, 'n': len(t)}

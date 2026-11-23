@@ -560,7 +560,10 @@ class GUIApp:
         self.traj_q_entries = []
         # Non-zero defaults: a reachable demo posture, so Execute does
         # something visible the first time it is pressed.
-        JOINT_DEMO = (0.40, -0.60, 0.50, 0.00, 0.00)
+        # (The previous default, (0.40, -0.60, 0.50, 0, 0), put the tool tip
+        # 49 mm below the table: invisible in kinematic mode, a collision in
+        # --dynamics mode. This one stays >= 88 mm above it the whole way.)
+        JOINT_DEMO = (0.40, -0.30, 0.20, 0.30, 0.00)
         for i in range(5):
             row = ttk.Frame(self.traj_joint_frame)
             row.pack(fill="x", pady=2)
