@@ -330,7 +330,8 @@ class GUIApp:
         self.root = root
         self.node = node
         self.root.title("Low Cost Robot Arm - Kinematics GUI")
-        self.root.geometry("760x980")
+        h = min(980, root.winfo_screenheight() - 80)
+        self.root.geometry(f"760x{h}")
 
         self.is_ready = False
         self._suppress = False          # blocks slider callbacks during programmatic set
@@ -390,6 +391,12 @@ class GUIApp:
             variable=self.integrate_var
         ).pack(anchor="w")
 
+        # ---------------- Bottom bar (pack BEFORE the notebook) ----------------
+        bottom_frame = ttk.Frame(root, padding=10)
+        bottom_frame.pack(fill="x", side="bottom")
+        ttk.Button(bottom_frame, text="Reset to Zero",
+                   command=self.reset_all).pack(fill="x")
+
         # ---------------- Tabs ----------------
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill="both", expand=True, padx=15, pady=5)
@@ -421,10 +428,6 @@ class GUIApp:
         self.signal_btn.pack(pady=12)
 
         self.build_trajectory_tab()
-
-        bottom_frame = ttk.Frame(root, padding=10)
-        bottom_frame.pack(fill="x", side="bottom")
-        ttk.Button(bottom_frame, text="Reset to Zero", command=self.reset_all).pack(fill="x")
 
         self.is_ready = True
         self.on_mode_change()
