@@ -1,5 +1,5 @@
 """
-Launch the DeepMind MuJoCo bridge together with the FK, IK and GUI nodes.
+Launch the DeepMind MuJoCo bridge together with the FK, IK, trajectory and GUI nodes.
 
 This is the Python-only alternative to simulation.launch.py: instead of the
 C++ mujoco_node, the simulator is scripts/mujoco_bridge.py, which runs
@@ -79,9 +79,12 @@ def generate_launch_description():
         "mujoco_bridge.py", ["--dynamics"], interpreter=python,
         condition=IfCondition(PythonExpression(["'", dynamics, "'.lower() == 'true'"])))
 
-    # 2-4. Kinematics nodes and GUI (plain ROS 2 Python, no mujoco needed).
+    # 2-5. Kinematics nodes, trajectory planner and GUI (plain ROS 2 Python,
+    # no mujoco needed). trajectory_node writes its CSV logs to the folder
+    # the launch is started from.
     fk = script("fk_node.py")
     ik = script("ik_node.py")
+    traj = script("trajectory_node.py")
     gui = script("gui_node.py")
 
     # Closing the viewer or the GUI window stops the whole system.
@@ -94,4 +97,5 @@ def generate_launch_description():
                               (gui, "GUI")]
     ]
 
-    return LaunchDescription(args + [bridge_kinematic, bridge_dynamic, fk, ik, gui] + shutdown_on_exit)
+    return LaunchDescription(args + [bridge_kinematic, bridge_dynamic, fk, ik, traj, gui]
+                             + shutdown_on_exit)

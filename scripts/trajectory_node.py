@@ -78,8 +78,10 @@ DT = 1.0 / CONTROL_HZ          # nominal, NOT wall-clock: timer jitter would
                                # otherwise feed straight into the integration
 
 N_JOINTS = 5                   # arm joints; the gripper is commanded separately
-GRIP_OPEN = 0.0
-GRIP_CLOSED = -1.2
+# Gripper joint: 0 is CLOSED (pads 7 mm apart), more negative opens it.
+# -0.6 opens the pads to 39 mm, enough to straddle a 20 mm board.
+GRIP_OPEN = -0.6
+GRIP_CLOSED = 0.0
 
 # How far the integrated command may lead the measured state before it is
 # clamped. Without this, a blocked joint lets q_cmd run away and the stored
@@ -268,6 +270,7 @@ class TrajectoryNode(Node):
         self.traj = None            # dict of planned arrays
         self.t0 = None
         self.q_cmd = np.zeros(N_JOINTS)
+        self.have_cmd = False       # q_cmd holds a real command from a trajectory
         self.grip_cmd = GRIP_OPEN
         self.log_rows = []
         self.log_dir = self.get_parameter('log_dir').value or str(Path.cwd())
@@ -324,6 +327,14 @@ class TrajectoryNode(Node):
         if mode == 'gripper':
             self.grip_cmd = float(cmd.get('value', GRIP_OPEN))
             self.get_logger().info(f"Gripper -> {self.grip_cmd:+.3f} rad")
+            # Act now when idle, holding the arm where it is. (During a
+            # trajectory the next control tick sends it.) Keep the last
+            # trajectory command if the arm is still there: in --dynamics mode
+            # it includes the lead that holds the arm up against gravity.
+            if self.mode is None and self.have_state:
+                if not (self.have_cmd and np.abs(self.q_cmd - self.q_meas).max() < 0.05):
+                    self.q_cmd = self.q_meas.copy()
+                self.publish_command()
             return
 
         if not self.have_state:
@@ -420,6 +431,7 @@ class TrajectoryNode(Node):
 
     def begin_execution(self):
         self.q_cmd = self.q_meas.copy()         # anchor the integrator
+        self.have_cmd = True
         self.log_rows = []
         self.t0 = time.time()
 
@@ -431,6 +443,7 @@ class TrajectoryNode(Node):
     def finish(self):
         if self.log_rows:
             self.write_log()
+            self.log_rows = []      # else shutdown writes it again as traj_None_*.csv
         self.mode = None
         self.traj = None
         self.t0 = None

@@ -167,6 +167,216 @@ class MujocoBridge(Node):
         self.pub.publish(msg)
 
 
+# ==============================================================================
+# PCB SORTING CELL: conveyor indexing + grasping
+# ==============================================================================
+NEST_XY = np.array([-0.18, 0.0])   # inspection nest, from scene.xml
+BOARD_Z = 0.031                    # board centre on the belt / nest
+BOARD_HALF_T = 0.003               # board half thickness
+BELT_PITCH = 0.05                  # m between boards on the belt
+INDEX_PERIOD = 20.0                # s between conveyor indexes
+INDEX_TIME = 2.0                   # s one index takes
+GRIP_ATTACH = 0.026                # m pad-centre distance: closing past this grasps
+GRIP_RELEASE = 0.030               # m pad-centre distance: opening past this releases
+GRIP_CONTACT_Q = -0.31             # rad gripper angle with the pads on a 20 mm board
+BINS = {"pass": (-0.10, -0.13), "rework": (-0.10, 0.13), "scrap": (-0.245, -0.09)}
+BIN_HALF = 0.022
+
+
+class PcbCell:
+    """
+    Drives the bodies named pcb_* in both bridge modes.
+
+    Conveyor: boards waiting on the belt are carried by it (their pose is set
+    every step). Every INDEX_PERIOD seconds the belt moves the queue one
+    BELT_PITCH toward the nest over INDEX_TIME, so the next board lands on the
+    same nest spot. An index is postponed while the nest is still occupied or
+    the gripper is low over it, and happens as soon as both are clear.
+
+    Grasp: when the gripper closes past GRIP_ATTACH with a board between its
+    pads, the board is locked to the hand (its pose is set from the hand pose
+    every step) until the gripper opens past GRIP_RELEASE. On release it falls
+    under physics in --dynamics mode; in kinematic mode, which has no gravity,
+    it is dropped straight down onto whatever is below it.
+    """
+
+    def __init__(self, model, data, node, dynamics, grip_qadr):
+        self.m, self.d, self.node, self.dynamics = model, data, node, dynamics
+        self.grip_qadr = grip_qadr
+        name = lambda kind, i: mujoco.mj_id2name(model, kind, i) or ""
+        boards = [b for b in range(model.nbody)
+                  if name(mujoco.mjtObj.mjOBJ_BODY, b).startswith("pcb_")]
+        self.qadr = {b: model.jnt_qposadr[model.body_jntadr[b]] for b in boards}
+        self.dadr = {b: model.jnt_dofadr[model.body_jntadr[b]] for b in boards}
+        self.kind = {}
+        for b in boards:
+            g = model.body_geomadr[b]
+            mat = name(mujoco.mjtObj.mjOBJ_MATERIAL, model.geom_matid[g])
+            self.kind[b] = mat.replace("pcb_", "") or "?"
+        self.label = {b: f"{name(mujoco.mjtObj.mjOBJ_BODY, b)} ({self.kind[b].upper()})"
+                      for b in boards}
+
+        # Boards off the nest are on the belt, in slots of one pitch
+        self.slot = {}
+        for b in boards:
+            y = float(model.body_pos[b][1])
+            if y > 0.5 * BELT_PITCH:
+                self.slot[b] = int(round(y / BELT_PITCH))
+        self.queue = sorted(self.slot, key=self.slot.get)
+
+        gid = lambda n: mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, n)
+        self.pads = (gid("gripper_static_finger_pad_1"), gid("gripper_moving_finger_pad_1"))
+        self.hand = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_static_finger")
+        self.held, self.off_p, self.off_q = None, None, None
+        self.prev_pads = None
+        self.index_start = None
+        self.next_due = time.time() + INDEX_PERIOD
+        self.ray_groups = np.array([1, 0, 0, 0, 0, 0], dtype=np.uint8)   # scene geoms only
+
+        on_nest = [self.label[b] for b in boards if b not in self.slot]
+        node.get_logger().info(
+            f"PCB cell: {len(boards)} boards. On the nest: {', '.join(on_nest) or 'none'}. "
+            f"Conveyor indexes every {INDEX_PERIOD:.0f}s. Bins: green=PASS, "
+            f"yellow=REWORK, red=SCRAP.")
+
+    # ------------------------------------------------------------------
+    def update(self, now):
+        """Call once per physics step (dynamics) or per frame (kinematic)."""
+        mujoco.mj_kinematics(self.m, self.d)
+        self._conveyor(now)
+        self._grasp()
+        self._hold()
+
+    # ------------------------------------------------------------------
+    def _set_pose(self, b, pos, quat=(1.0, 0.0, 0.0, 0.0)):
+        a = self.qadr[b]
+        self.d.qpos[a:a + 3] = pos
+        self.d.qpos[a + 3:a + 7] = quat
+        self.d.qvel[self.dadr[b]:self.dadr[b] + 6] = 0.0
+
+    def _nest_clear(self):
+        for b in self.qadr:
+            if b in self.slot or b == self.held:
+                continue
+            p = self.d.xpos[b]
+            if np.linalg.norm(p[:2] - NEST_XY) < 0.02 and p[2] < 0.06:
+                return False
+        # Fingers down at board height over the nest. (The Ready pose, pads at
+        # ~57 mm, clears an incoming board by 2 cm and must not block the belt,
+        # or waiting there for the next board would wait forever.)
+        for g in self.pads:
+            p = self.d.geom_xpos[g]
+            if np.linalg.norm(p[:2] - NEST_XY) < 0.04 and p[2] < 0.045:
+                return False
+        return True
+
+    def _conveyor(self, now):
+        s = 0.0
+        if self.index_start is None:
+            if self.queue and now >= self.next_due and self._nest_clear():
+                self.index_start = now
+        if self.index_start is not None:
+            u = min(1.0, (now - self.index_start) / INDEX_TIME)
+            s = u * u * (3.0 - 2.0 * u)                      # smooth start and stop
+            if u >= 1.0:
+                for b in self.queue:
+                    self.slot[b] -= 1
+                arrived = [b for b in self.queue if self.slot[b] <= 0]
+                for b in arrived:
+                    del self.slot[b]
+                    self._set_pose(b, [NEST_XY[0], NEST_XY[1], BOARD_Z])
+                self.queue = [b for b in self.queue if b in self.slot]
+                self.index_start, s = None, 0.0
+                self.next_due = now + INDEX_PERIOD
+                for b in arrived:
+                    self.node.get_logger().info(
+                        f"Conveyor: {self.label[b]} is on the nest -> "
+                        f"{self.kind[b].upper()} bin. {len(self.queue)} left on the belt.")
+                if not self.queue:
+                    self.node.get_logger().info(
+                        "Conveyor: belt is empty (restart the bridge to reload it).")
+        for b in self.queue:                                  # the belt carries them
+            y = NEST_XY[1] + (self.slot[b] - s) * BELT_PITCH
+            self._set_pose(b, [NEST_XY[0], y, BOARD_Z])
+
+    def _grasp(self):
+        sp, mp = (self.d.geom_xpos[g].copy() for g in self.pads)
+        gap = float(np.linalg.norm(mp - sp))
+        if self.held is None and self.prev_pads is not None:
+            a, b_, prev_gap = self.prev_pads
+            if prev_gap > GRIP_ATTACH >= gap:
+                # Closing past the attach width: is a board between the pads
+                # as they were just before (still open)?
+                ab = b_ - a
+                for b in self.qadr:
+                    if b in self.slot:
+                        continue
+                    c = self.d.xpos[b]
+                    t = float((c - a) @ ab / (ab @ ab))
+                    perp = float(np.linalg.norm(c - (a + t * ab)))
+                    if 0.15 < t < 0.85 and perp < 0.008:
+                        self._attach(b)
+                        break
+        elif self.held is not None and gap > GRIP_RELEASE:
+            self._release()
+        self.prev_pads = (sp, mp, gap)
+
+    def _attach(self, b):
+        hp, hq = self.d.xpos[self.hand], self.d.xquat[self.hand]
+        neg = np.zeros(4)
+        mujoco.mju_negQuat(neg, hq)
+        self.off_p = np.zeros(3)
+        mujoco.mju_rotVecQuat(self.off_p, self.d.xpos[b] - hp, neg)
+        self.off_q = np.zeros(4)
+        mujoco.mju_mulQuat(self.off_q, neg, self.d.xquat[b])
+        self.held = b
+        self.node.get_logger().info(
+            f"Gripped {self.label[b]} -> take it to the {self.kind[b].upper()} bin.")
+
+    def _hold(self):
+        if self.held is None:
+            return
+        if not self.dynamics and self.d.qpos[self.grip_qadr] > GRIP_CONTACT_Q:
+            # No contacts in kinematic mode: stop the fingers on the board
+            # instead of letting them close through it.
+            self.d.qpos[self.grip_qadr] = GRIP_CONTACT_Q
+            mujoco.mj_kinematics(self.m, self.d)
+        hp, hq = self.d.xpos[self.hand], self.d.xquat[self.hand]
+        p = np.zeros(3)
+        mujoco.mju_rotVecQuat(p, self.off_p, hq)
+        q = np.zeros(4)
+        mujoco.mju_mulQuat(q, hq, self.off_q)
+        self._set_pose(self.held, hp + p, q)
+
+    def _release(self):
+        b, self.held = self.held, None
+        a = self.qadr[b]
+        pos = self.d.qpos[a:a + 3].copy()
+        if not self.dynamics:
+            # Drop straight down onto the first surface below, lying flat with
+            # its current heading.
+            geomid = np.array([-1], dtype=np.int32)
+            dist = mujoco.mj_ray(self.m, self.d, pos, np.array([0.0, 0.0, -1.0]),
+                                 self.ray_groups, 1, b, geomid)
+            floor_z = pos[2] - dist if dist >= 0 else 0.0
+            R = np.zeros(9)
+            mujoco.mju_quat2Mat(R, self.d.qpos[a + 3:a + 7])
+            yaw = float(np.arctan2(R[3], R[0]))
+            pos[2] = floor_z + BOARD_HALF_T
+            self._set_pose(b, pos, [np.cos(yaw / 2), 0.0, 0.0, np.sin(yaw / 2)])
+        else:
+            self.d.qvel[self.dadr[b]:self.dadr[b] + 6] = 0.0
+        where = next((k for k, (x, y) in BINS.items()
+                      if abs(pos[0] - x) < BIN_HALF and abs(pos[1] - y) < BIN_HALF), None)
+        if where is None:
+            verdict = "not over a bin"
+        elif where == self.kind[b]:
+            verdict = f"into the {where.upper()} bin - correct"
+        else:
+            verdict = f"into the {where.upper()} bin - WRONG, it belongs in {self.kind[b].upper()}"
+        self.node.get_logger().info(f"Released {self.label[b]} {verdict}.")
+
+
 def run_viewer(xml_path, dynamics):
     import mujoco.viewer
 
@@ -176,6 +386,8 @@ def run_viewer(xml_path, dynamics):
 
     rclpy.init()
     node = MujocoBridge(model, data, names, qadr, vadr, dynamics)
+    cell = PcbCell(model, data, node, dynamics, qadr[names.index("gripper")]) \
+        if "gripper" in names else None
 
     frame_dt = 1.0 / 60.0          # match the display; syncing faster can tear
     next_frame = time.time()
@@ -252,6 +464,8 @@ def run_viewer(xml_path, dynamics):
                         steps = 0
                         while data.time < target and steps < MAX_CATCHUP:
                             mujoco.mj_step(model, data)
+                            if cell is not None:
+                                cell.update(time.time())
                             steps += 1
 
                         # Exhausting the budget is only a problem if a
@@ -268,6 +482,8 @@ def run_viewer(xml_path, dynamics):
                                 f"controller.",
                                 throttle_duration_sec=5.0)
                 else:
+                    if cell is not None:
+                        cell.update(time.time())
                     mujoco.mj_forward(model, data)
 
                 now = time.time()

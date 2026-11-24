@@ -57,8 +57,6 @@
       <geom name="bin_pass_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_pass_mat"/>
       <geom name="bin_pass_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_pass_mat"/>
       <geom name="bin_pass_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_pass_mat"/>
-      <!-- Sample PCB in bin -->
-      <geom name="pcb_in_pass_bin" type="box" size="0.010 0.010 0.003" pos="0.002 0.002 0.008" material="pcb_pass"/>
     </body>
 
     <!-- REWORK BIN (Reachable at -0.10, +0.13) -->
@@ -68,8 +66,6 @@
       <geom name="bin_rework_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_rework_mat"/>
       <geom name="bin_rework_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_rework_mat"/>
       <geom name="bin_rework_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_rework_mat"/>
-      <!-- Sample PCB in bin -->
-      <geom name="pcb_in_rework_bin" type="box" size="0.010 0.010 0.003" pos="-0.002 0.001 0.008" material="pcb_rework"/>
     </body>
 
     <!-- SCRAP BIN (Outer front side, completely clear of conveyor) -->
@@ -79,32 +75,45 @@
       <geom name="bin_scrap_w2" type="box" size="0.022 0.002 0.010" pos="0 -0.020 0.014" material="bin_scrap_mat"/>
       <geom name="bin_scrap_w3" type="box" size="0.002 0.022 0.010" pos="0.020 0 0.014" material="bin_scrap_mat"/>
       <geom name="bin_scrap_w4" type="box" size="0.002 0.022 0.010" pos="-0.020 0 0.014" material="bin_scrap_mat"/>
-      <!-- Sample PCB in bin -->
-      <geom name="pcb_in_scrap_bin" type="box" size="0.010 0.010 0.003" pos="0.001 -0.002 0.008" material="pcb_scrap"/>
     </body>
 
     <!-- ================================================================= -->
-    <!-- 3. PCBS ON CONVEYOR (Static geoms, zero impact on robot DOF)      -->
+    <!-- 3. PCBS ON CONVEYOR                                               -->
     <!-- ================================================================= -->
-    <!-- Target PCB sitting on the Inspection Nest -->
-    <body name="pcb_active" pos="-0.18 0.0 0.031">
-      <freejoint name="pcb_active_free"/>
-      <geom name="pcb_active_geom" type="box" size="0.010 0.010 0.003"
+    <!-- Five boards, 50 mm apart along +y, in conveyor order. pcb_1 starts on
+         the inspection nest. mujoco_bridge.py drives the conveyor: every 20 s
+         it indexes the queue one pitch toward the nest, so the next board
+         lands on the same nest spot. It also locks a board to the gripper
+         when the fingers close around it. Material = destination bin:
+         pcb_pass -> green bin, pcb_rework -> yellow bin, pcb_scrap -> red bin. -->
+    <body name="pcb_1" pos="-0.18 0.00 0.031">
+      <freejoint name="pcb_1_free"/>
+      <geom name="pcb_1_geom" type="box" size="0.010 0.010 0.003"
             material="pcb_pass" mass="0.004" friction="0.7" priority="1"
             solimp="0.95 0.99 0.001" solref="0.004 1"/>
     </body>
-
-    <body name="pcb_queued_1" pos="-0.18 0.08 0.031">
-      <freejoint name="pcb_q1_free"/>
-      <geom name="pcb_q1_geom" type="box" size="0.010 0.010 0.003"
+    <body name="pcb_2" pos="-0.18 0.05 0.031">
+      <freejoint name="pcb_2_free"/>
+      <geom name="pcb_2_geom" type="box" size="0.010 0.010 0.003"
             material="pcb_rework" mass="0.004" friction="0.7" priority="1"
             solimp="0.95 0.99 0.001" solref="0.004 1"/>
     </body>
-
-    <body name="pcb_queued_2" pos="-0.18 0.16 0.031">
-      <freejoint name="pcb_q2_free"/>
-      <geom name="pcb_q2_geom" type="box" size="0.010 0.010 0.003"
+    <body name="pcb_3" pos="-0.18 0.10 0.031">
+      <freejoint name="pcb_3_free"/>
+      <geom name="pcb_3_geom" type="box" size="0.010 0.010 0.003"
             material="pcb_scrap" mass="0.004" friction="0.7" priority="1"
+            solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    </body>
+    <body name="pcb_4" pos="-0.18 0.15 0.031">
+      <freejoint name="pcb_4_free"/>
+      <geom name="pcb_4_geom" type="box" size="0.010 0.010 0.003"
+            material="pcb_scrap" mass="0.004" friction="0.7" priority="1"
+            solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    </body>
+    <body name="pcb_5" pos="-0.18 0.20 0.031">
+      <freejoint name="pcb_5_free"/>
+      <geom name="pcb_5_geom" type="box" size="0.010 0.010 0.003"
+            material="pcb_pass" mass="0.004" friction="0.7" priority="1"
             solimp="0.95 0.99 0.001" solref="0.004 1"/>
     </body>
 
