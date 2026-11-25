@@ -10,12 +10,28 @@ The scripts are run straight from the source tree, so no colcon build is needed:
 
     ros2 launch launch/bridge.launch.py                  # from the package root
     ros2 launch launch/bridge.launch.py dynamics:=true   # physics instead of kinematic
+    ros2 launch launch/bridge.launch.py dynamics:=true demo:=joint   # + automatic PCB sorting
+    ros2 launch launch/bridge.launch.py dynamics:=true demo:=task    #   (joint- / task-space)
 
 The `mujoco` Python package must be importable by the chosen interpreter
 (e.g. activate your venv or pixi shell first). On macOS the bridge needs
 `mjpython`, which is picked automatically; override with python:=<path>.
 
-Closing the MuJoCo viewer or the GUI window shuts everything down.
+Closing the MuJoCo viewer or the GUI window shuts everything down, and so
+does the pick-and-place sequencer when a demo run is finished.
+
+Node graph (who commands whom, and where the feedback goes):
+
+    gui_node ---- /trajectory_command ---> trajectory_node --+
+       |                                                     |
+       |---- /joint_commands (FK modes) ---------------------+--> mujoco_bridge
+       |                                                     |      (plant)
+       +---- /target_pose|velocity|accel --> ik_node --------+        |
+                                                                      |
+    mujoco_bridge -- /joint_state --> fk_node, ik_node, trajectory_node
+                 -- /pcb_cell/state --> pick_place_node
+    pick_place_node -- /trajectory_command --> trajectory_node    (demo:=...)
+    fk_node -- /current_ee_pose|velocity|accel --> gui_node
 """
 
 import sys
@@ -48,6 +64,8 @@ def generate_launch_description():
 
     python = LaunchConfiguration("python")
     dynamics = LaunchConfiguration("dynamics")
+    demo = LaunchConfiguration("demo")
+    start_delay = LaunchConfiguration("start_delay")
 
     args = [
         DeclareLaunchArgument(
@@ -56,6 +74,13 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "dynamics", default_value="false",
             description="true: drive actuators and integrate physics; false: kinematic (qpos) mode."),
+        DeclareLaunchArgument(
+            "demo", default_value="none",
+            description="joint | task: run pick_place_node.py to sort every board in "
+                        "joint-space or task-space mode, then shut down; none: manual (GUI)."),
+        DeclareLaunchArgument(
+            "start_delay", default_value="0",
+            description="demo only: seconds to wait before the first move (time to arrange windows)."),
     ]
 
     # Unbuffered so print()/log output shows up live in the launch terminal.
@@ -87,6 +112,11 @@ def generate_launch_description():
     traj = script("trajectory_node.py")
     gui = script("gui_node.py")
 
+    # 6. Optional automatic pick-and-place run (demo:=joint | demo:=task)
+    pick_place = script(
+        "pick_place_node.py", ["--mode", demo, "--start-delay", start_delay],
+        condition=IfCondition(PythonExpression(["'", demo, "' in ('joint', 'task')"])))
+
     # Closing the viewer or the GUI window stops the whole system.
     shutdown_on_exit = [
         RegisterEventHandler(OnProcessExit(
@@ -94,8 +124,10 @@ def generate_launch_description():
             on_exit=[LogInfo(msg=f"{label} closed, shutting down."), EmitEvent(event=Shutdown())]))
         for action, label in [(bridge_kinematic, "MuJoCo viewer"),
                               (bridge_dynamic, "MuJoCo viewer"),
-                              (gui, "GUI")]
+                              (gui, "GUI"),
+                              (pick_place, "Pick-and-place demo")]
     ]
 
-    return LaunchDescription(args + [bridge_kinematic, bridge_dynamic, fk, ik, traj, gui]
+    return LaunchDescription(args + [bridge_kinematic, bridge_dynamic, fk, ik, traj, gui,
+                                     pick_place]
                              + shutdown_on_exit)

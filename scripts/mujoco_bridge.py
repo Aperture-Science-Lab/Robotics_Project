@@ -13,17 +13,40 @@ Two modes:
                          mj_forward() updates the frames. No dynamics: the arm
                          is exactly where you told it to be. Right for checking
                          FK/IK.
-    dynamic (--dynamics) commands go to the actuators and mj_step() integrates.
-                         The arm lags, sags under gravity and respects limits.
+    dynamic (--dynamics) commands go to the actuators and mj_step() integrates
+                         the arm's equations of motion. The arm lags, sags
+                         under gravity and respects limits.
+
+The plant in --dynamics mode
+    Equations of motion (Lagrangian, L = T - U summed over the links):
+
+        tau_i = d/dt (dL/dq_dot_i) - dL/dq_i
+          =>    M(q) q_ddot + C(q, q_dot) q_dot + G(q) = tau - tau_friction
+
+        M  mass / inertia matrix (+ 0.5 kg m^2 rotor armature on every joint)
+        C  centripetal and Coriolis terms
+        G  gravity torques
+        tau_friction  dry friction, 0.2 N m per joint
+
+    Actuators: every joint has a position servo (low_cost_robot_arm.xml,
+    <position kp="100" kv="10">) that turns the commanded angle into torque
+
+        tau = kp (q_cmd - q) - kv q_dot,     clipped to the joint's forcerange
+
+    so /joint_commands is the servo SET-POINT, not the joint angle: under
+    gravity the joint settles below it until the trajectory controller's
+    integral action raises q_cmd. MuJoCo builds M, C and G from the link
+    masses and inertias in the model and integrates at 2 ms steps.
 
 Run with mjpython (macOS requires it for launch_passive):
 
     mjpython scripts/mujoco_bridge.py
     mjpython scripts/mujoco_bridge.py --dynamics
-    python   scripts/mujoco_bridge.py --compare      # no viewer, checks fk_node
+    python   scripts/mujoco_bridge.py --compare      # no viewer, checks the DH model
 """
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -33,7 +56,7 @@ import numpy as np
 import mujoco
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, String
 from sensor_msgs.msg import JointState
 
 # scripts/ -> project root -> model/
@@ -181,6 +204,7 @@ GRIP_RELEASE = 0.030               # m pad-centre distance: opening past this re
 GRIP_CONTACT_Q = -0.31             # rad gripper angle with the pads on a 20 mm board
 BINS = {"pass": (-0.10, -0.13), "rework": (-0.10, 0.13), "scrap": (-0.245, -0.09)}
 BIN_HALF = 0.022
+STATE_HZ = 10.0                    # /pcb_cell/state publish rate
 
 
 class PcbCell:
@@ -198,6 +222,15 @@ class PcbCell:
     every step) until the gripper opens past GRIP_RELEASE. On release it falls
     under physics in --dynamics mode; in kinematic mode, which has no gravity,
     it is dropped straight down onto whatever is below it.
+
+    State: /pcb_cell/state (std_msgs/String, JSON) at STATE_HZ, so a sequencer
+    (pick_place_node.py) knows when a board is waiting on the nest and can
+    check where each released board landed:
+        {"nest": "pass" | "rework" | "scrap" | null,   board waiting on the nest
+         "held": kind | null,                           board in the gripper
+         "belt": n,                                     boards still on the belt
+         "indexing": bool,                              conveyor moving now
+         "released": [{"board", "kind", "bin", "correct", "x", "y"}, ...]}
     """
 
     def __init__(self, model, data, node, dynamics, grip_qadr):
@@ -232,6 +265,9 @@ class PcbCell:
         self.index_start = None
         self.next_due = time.time() + INDEX_PERIOD
         self.ray_groups = np.array([1, 0, 0, 0, 0, 0], dtype=np.uint8)   # scene geoms only
+        self.released = []
+        self.state_pub = node.create_publisher(String, "/pcb_cell/state", 10)
+        self.next_state = 0.0
 
         on_nest = [self.label[b] for b in boards if b not in self.slot]
         node.get_logger().info(
@@ -246,6 +282,28 @@ class PcbCell:
         self._conveyor(now)
         self._grasp()
         self._hold()
+        if now >= self.next_state:
+            self.next_state = now + 1.0 / STATE_HZ
+            self._publish_state()
+
+    def _publish_state(self):
+        nest = None
+        for b in self.qadr:
+            if b in self.slot or b == self.held:
+                continue
+            p = self.d.xpos[b]
+            if np.linalg.norm(p[:2] - NEST_XY) < 0.01 and p[2] < 0.04:
+                nest = self.kind[b]
+                break
+        msg = String()
+        msg.data = json.dumps({
+            "nest": nest if self.index_start is None else None,
+            "held": self.kind[self.held] if self.held is not None else None,
+            "belt": len(self.queue),
+            "indexing": self.index_start is not None,
+            "released": self.released,
+        })
+        self.state_pub.publish(msg)
 
     # ------------------------------------------------------------------
     def _set_pose(self, b, pos, quat=(1.0, 0.0, 0.0, 0.0)):
@@ -375,6 +433,10 @@ class PcbCell:
         else:
             verdict = f"into the {where.upper()} bin - WRONG, it belongs in {self.kind[b].upper()}"
         self.node.get_logger().info(f"Released {self.label[b]} {verdict}.")
+        self.released.append({
+            "board": mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_BODY, b),
+            "kind": self.kind[b], "bin": where, "correct": where == self.kind[b],
+            "x": round(float(pos[0]), 4), "y": round(float(pos[1]), 4)})
 
 
 def run_viewer(xml_path, dynamics):
@@ -505,20 +567,24 @@ def run_viewer(xml_path, dynamics):
                 # polled often enough that it steps one or two at a time rather
                 # than in bursts.
                 time.sleep(0.001 if dynamics else 0.002)
+    except KeyboardInterrupt:
+        pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 def run_compare(xml_path, n_samples=200, seed=0):
     """
-    Check fk_node's hand-derived chain against MuJoCo's own kinematics.
+    Check the DH forward kinematics (kinematics.py) against MuJoCo's own.
 
-    This is the test the existing selftest() cannot do: selftest only proves
-    the derivation is internally consistent, not that it matches the XML.
+    This is the test kinematics.py's selftest cannot do: the selftest only
+    proves the derivation is internally consistent, not that it matches the
+    model described in the XML.
     """
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from fk_node import forward_kinematics
+    from kinematics import ee_position
 
     model = mujoco.MjModel.from_xml_path(str(xml_path))
     data = mujoco.MjData(model)
@@ -541,7 +607,7 @@ def run_compare(xml_path, n_samples=200, seed=0):
             data.qpos[qadr[i]] = q[i]
         mujoco.mj_forward(model, data)
 
-        mine = np.array(forward_kinematics(q)[:3])
+        mine = ee_position(q)
         theirs = data.site_xpos[sid].copy()
         err = float(np.abs(mine - theirs).max())
         if err > worst:
@@ -551,7 +617,7 @@ def run_compare(xml_path, n_samples=200, seed=0):
     print(f"samples         : {n_samples}")
     print(f"max |error|     : {worst:.3e} m")
     if worst < 1e-9:
-        print("MATCH - the derived chain agrees with the XML.")
+        print("MATCH - the DH model agrees with the XML.")
         return 0
     print("MISMATCH - the derivation and the XML disagree.")
     print("worst-case q    :", np.array2string(worst_q, precision=4))
@@ -564,7 +630,7 @@ def main():
     ap.add_argument("--dynamics", action="store_true",
                     help="drive actuators and integrate physics")
     ap.add_argument("--compare", action="store_true",
-                    help="check fk_node against MuJoCo, no viewer")
+                    help="check the DH forward kinematics against MuJoCo, no viewer")
     args = ap.parse_args()
 
     xml = Path(args.xml)

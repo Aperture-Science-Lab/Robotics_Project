@@ -1,0 +1,236 @@
+[INFO] [launch]: All log files can be found below /home/ali/.ros/log/2026-11-25-12-00-42-896744-ali-LOQ-15IAX9-47303
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [mujoco_bridge-1]: process started with pid [47318]
+[INFO] [fk_node-2]: process started with pid [47319]
+[INFO] [ik_node-3]: process started with pid [47320]
+[INFO] [trajectory_node-4]: process started with pid [47321]
+[INFO] [gui_node-5]: process started with pid [47322]
+[INFO] [pick_place_node-6]: process started with pid [47323]
+[trajectory_node-4] [0m[INFO] [1795600843.447133087] [trajectory_node]: Trajectory node ready at 200 Hz.
+[trajectory_node-4]   Joint FLC  Ke=0.0500 Kde=2.0000 Ku=0.5000 (same on all five joints)
+[trajectory_node-4]   Task  FLC  Ke=0.0100 Kde=0.3000 Ku=0.0800 (same on all three axes)
+[trajectory_node-4]   Run mujoco_bridge.py with --dynamics to see the controllers work; in kinematic mode the error stays near zero.[0m
+[fk_node-2] [0m[INFO] [1795600843.464696593] [forward_kinematics_node]: FK node ready (position-only task space, J_dot method 'fd'). Waiting for /joint_state...[0m
+[ik_node-3] [0m[INFO] [1795600843.486389192] [inverse_kinematics_node]: IK node ready: position / velocity / acceleration (position-only task space).[0m
+[gui_node-5] [0m[INFO] [1795600843.489584978] [robot_gui_node]: Robot Control GUI Node Initialized.[0m
+[pick_place_node-6] [0m[INFO] [1795600843.578436668] [pick_place_node]: Pick-and-place in TASK-SPACE mode. Waiting for trajectory_node and the PCB cell...[0m
+[mujoco_bridge-1] [0m[INFO] [1795600843.709768916] [mujoco_bridge]: MuJoCo bridge up in dynamic (ctrl + mj_step) mode.[0m
+[mujoco_bridge-1] [0m[INFO] [1795600843.710027049] [mujoco_bridge]: Driving joints: base_rotation, pitch, elbow, wrist_pitch, wrist_roll, gripper[0m
+[mujoco_bridge-1] [0m[INFO] [1795600843.710936121] [mujoco_bridge]: PCB cell: 5 boards. On the nest: pcb_1 (PASS). Conveyor indexes every 20s. Bins: green=PASS, yellow=REWORK, red=SCRAP.[0m
+[mujoco_bridge-1] Failed to load plugin 'libdecor-gtk.so': failed to init
+[mujoco_bridge-1] No plugins found, falling back on no decorations
+[fk_node-2] [0m[INFO] [1795600844.063157575] [forward_kinematics_node]: [FK] X -0.2133 Y +0.0092 Z +0.1678 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600844.685551651] [forward_kinematics_node]: [FK] X -0.2133 Y +0.0092 Z +0.1677 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600845.081833071] [pick_place_node]: Starting in 30 s...[0m
+[fk_node-2] [0m[INFO] [1795600845.506655677] [forward_kinematics_node]: [FK] X -0.2133 Y +0.0092 Z +0.1676 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600846.485983663] [forward_kinematics_node]: [FK] X -0.2133 Y +0.0092 Z +0.1675 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600847.061628955] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1675 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600847.718693653] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1675 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600848.472074858] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1674 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600849.061852948] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600849.367630184] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1674 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600850.456816328] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1673 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600851.873027402] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1673 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600853.870726414] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1672 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600854.062491570] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600857.304313517] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1672 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600859.066162052] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[mujoco_bridge-1] [0m[INFO] [1795600864.067022996] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[mujoco_bridge-1] [0m[INFO] [1795600869.066993011] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[mujoco_bridge-1] [0m[INFO] [1795600874.067720814] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[pick_place_node-6] [0m[INFO] [1795600875.083105026] [pick_place_node]:   gripper open[0m
+[trajectory_node-4] [0m[INFO] [1795600875.085611238] [trajectory_node]: Gripper -> -0.600 rad[0m
+[fk_node-2] [0m[INFO] [1795600875.094671412] [forward_kinematics_node]: [FK] X -0.2134 Y +0.0092 Z +0.1672 m | |v| 0.0000 m/s | |a| 0.0002 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600875.707071837] [forward_kinematics_node]: [FK] X -0.2135 Y +0.0092 Z +0.1671 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600876.084457049] [pick_place_node]:   JOINT-SPACE  home -> ready (above nest)  (3.0 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600876.091316489] [trajectory_node]: JOINT-SPACE: [-0.    -0.002  0.002 -0.    -0.   ] -> [ 0.02  -0.409 -0.517 -1.357  0.022] over 3.00s, 601 samples[0m
+[fk_node-2] [0m[INFO] [1795600876.211132268] [forward_kinematics_node]: [FK] X -0.2135 Y +0.0092 Z +0.1670 m | |v| 0.0002 m/s | |a| 0.0001 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600876.712020225] [forward_kinematics_node]: [FK] X -0.2157 Y +0.0094 Z +0.1596 m | |v| 0.0365 m/s | |a| 0.0713 m/s^2 | |J_dot q_dot| 0.0123 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600877.219416798] [forward_kinematics_node]: [FK] X -0.2190 Y +0.0105 Z +0.1314 m | |v| 0.0725 m/s | |a| 0.0791 m/s^2 | |J_dot q_dot| 0.0538 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600877.722321318] [forward_kinematics_node]: [FK] X -0.2105 Y +0.0118 Z +0.0940 m | |v| 0.0747 m/s | |a| 0.0645 m/s^2 | |J_dot q_dot| 0.0654 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600878.225660959] [forward_kinematics_node]: [FK] X -0.1920 Y +0.0127 Z +0.0686 m | |v| 0.0479 m/s | |a| 0.0553 m/s^2 | |J_dot q_dot| 0.0296 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600878.726803417] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0130 Z +0.0597 m | |v| 0.0119 m/s | |a| 0.0655 m/s^2 | |J_dot q_dot| 0.0019 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600879.068403691] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[trajectory_node-4] [0m[INFO] [1795600879.207293925] [trajectory_node]: Trajectory complete (settled in 0.12s). Final |error| = 0.00188 rad[0m
+[trajectory_node-4] [0m[INFO] [1795600879.217472202] [trajectory_node]: Logged 624 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_joint_20261125_120119.csv[0m
+[fk_node-2] [0m[INFO] [1795600879.230883881] [forward_kinematics_node]: [FK] X -0.1795 Y +0.0131 Z +0.0591 m | |v| 0.0028 m/s | |a| 0.0256 m/s^2 | |J_dot q_dot| 0.0001 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600879.246357776] [pick_place_node]:   TASK-SPACE  align tool tip over the board  (1.0 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600879.258546433] [trajectory_node]: TASK-SPACE: [-0.1796  0.0131  0.0591] -> [-0.18    0.0131  0.074 ] m over 1.00s, 201 samples, worst IK residual 0.99 mm, sigma_min 0.1164[0m
+[fk_node-2] [0m[INFO] [1795600879.733228695] [forward_kinematics_node]: [FK] X -0.1797 Y +0.0131 Z +0.0652 m | |v| 0.0329 m/s | |a| 0.0669 m/s^2 | |J_dot q_dot| 0.0057 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600880.235612851] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0749 m | |v| 0.0023 m/s | |a| 0.0614 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600880.262885560] [trajectory_node]: Trajectory complete (settled in 0.00s). Final |error| = 0.00080 m[0m
+[trajectory_node-4] [0m[INFO] [1795600880.266429151] [trajectory_node]: Logged 202 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120120.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600880.455575655] [pick_place_node]: [board 1] PASS board on the nest -> PASS bin[0m
+[pick_place_node-6] [0m[INFO] [1795600880.455934487] [pick_place_node]:   TASK-SPACE  down to the board  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600880.468161469] [trajectory_node]: TASK-SPACE: [-0.18    0.0131  0.0742] -> [-0.18    0.0131  0.034 ] m over 1.50s, 301 samples, worst IK residual 0.70 mm, sigma_min 0.1144[0m
+[fk_node-2] [0m[INFO] [1795600880.737104372] [forward_kinematics_node]: [FK] X -0.1799 Y +0.0131 Z +0.0732 m | |v| 0.0099 m/s | |a| 0.0330 m/s^2 | |J_dot q_dot| 0.0007 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600881.242037068] [forward_kinematics_node]: [FK] X -0.1798 Y +0.0131 Z +0.0532 m | |v| 0.0550 m/s | |a| 0.0592 m/s^2 | |J_dot q_dot| 0.0164 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600881.745660607] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0338 m | |v| 0.0134 m/s | |a| 0.0763 m/s^2 | |J_dot q_dot| 0.0011 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600882.027338245] [trajectory_node]: Trajectory complete (settled in 0.06s). Final |error| = 0.00096 m[0m
+[trajectory_node-4] [0m[INFO] [1795600882.033144852] [trajectory_node]: Logged 313 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120122.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600882.047270001] [pick_place_node]:   gripper close (grasp)[0m
+[trajectory_node-4] [0m[INFO] [1795600882.048034852] [trajectory_node]: Gripper -> +0.000 rad[0m
+[fk_node-2] [0m[INFO] [1795600882.248146864] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0340 m | |v| 0.0006 m/s | |a| 0.0122 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600882.275755373] [mujoco_bridge]: Gripped pcb_1 (PASS) -> take it to the PASS bin.[0m
+[fk_node-2] [0m[INFO] [1795600882.749456190] [forward_kinematics_node]: [FK] X -0.1802 Y +0.0127 Z +0.0350 m | |v| 0.0001 m/s | |a| 0.0018 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600883.048441862] [pick_place_node]:   TASK-SPACE  lift  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600883.062043553] [trajectory_node]: TASK-SPACE: [-0.1802  0.0128  0.035 ] -> [-0.18    0.0131  0.074 ] m over 1.50s, 301 samples, worst IK residual 0.68 mm, sigma_min 0.1127[0m
+[fk_node-2] [0m[INFO] [1795600883.251381534] [forward_kinematics_node]: [FK] X -0.1802 Y +0.0128 Z +0.0350 m | |v| 0.0035 m/s | |a| 0.0133 m/s^2 | |J_dot q_dot| 0.0001 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600883.756629725] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0128 Z +0.0512 m | |v| 0.0503 m/s | |a| 0.0649 m/s^2 | |J_dot q_dot| 0.0133 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600884.069996962] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600884.260197783] [forward_kinematics_node]: [FK] X -0.1798 Y +0.0131 Z +0.0728 m | |v| 0.0211 m/s | |a| 0.0643 m/s^2 | |J_dot q_dot| 0.0024 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600884.587598414] [trajectory_node]: Trajectory complete (settled in 0.02s). Final |error| = 0.00098 m[0m
+[trajectory_node-4] [0m[INFO] [1795600884.592327969] [trajectory_node]: Logged 306 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120124.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600884.659395226] [pick_place_node]:   TASK-SPACE  over the PASS bin  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600884.670320031] [trajectory_node]: TASK-SPACE: [-0.18    0.0131  0.0745] -> [-0.1095 -0.1209  0.0609] m over 2.50s, 501 samples, worst IK residual 0.69 mm, sigma_min 0.1126[0m
+[fk_node-2] [0m[INFO] [1795600884.761873930] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0744 m | |v| 0.0001 m/s | |a| 0.0192 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600885.266983461] [forward_kinematics_node]: [FK] X -0.1743 Y +0.0025 Z +0.0734 m | |v| 0.0594 m/s | |a| 0.1129 m/s^2 | |J_dot q_dot| 0.0234 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600885.666695389] [mujoco_bridge]: Conveyor: pcb_2 (REWORK) is on the nest -> REWORK bin. 3 left on the belt.[0m
+[fk_node-2] [0m[INFO] [1795600885.768667410] [forward_kinematics_node]: [FK] X -0.1525 Y -0.0371 Z +0.0694 m | |v| 0.1147 m/s | |a| 0.1017 m/s^2 | |J_dot q_dot| 0.0846 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600886.271072941] [forward_kinematics_node]: [FK] X -0.1257 Y -0.0876 Z +0.0644 m | |v| 0.1020 m/s | |a| 0.0160 m/s^2 | |J_dot q_dot| 0.0645 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600886.772391300] [forward_kinematics_node]: [FK] X -0.1107 Y -0.1183 Z +0.0612 m | |v| 0.0326 m/s | |a| 0.1287 m/s^2 | |J_dot q_dot| 0.0069 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600887.192561066] [trajectory_node]: Trajectory complete (settled in 0.02s). Final |error| = 0.00097 m[0m
+[trajectory_node-4] [0m[INFO] [1795600887.200275233] [trajectory_node]: Logged 506 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120127.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600887.258785962] [pick_place_node]:   gripper open (release)[0m
+[trajectory_node-4] [0m[INFO] [1795600887.260922033] [trajectory_node]: Gripper -> -0.600 rad[0m
+[fk_node-2] [0m[INFO] [1795600887.275327959] [forward_kinematics_node]: [FK] X -0.1091 Y -0.1215 Z +0.0606 m | |v| 0.0047 m/s | |a| 0.0605 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600887.561947241] [mujoco_bridge]: Released pcb_1 (PASS) into the PASS bin - correct.[0m
+[fk_node-2] [0m[INFO] [1795600887.776090382] [forward_kinematics_node]: [FK] X -0.1092 Y -0.1211 Z +0.0607 m | |v| 0.0001 m/s | |a| 0.0048 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600888.259585215] [pick_place_node]:   TASK-SPACE  back over the nest  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600888.271059214] [trajectory_node]: TASK-SPACE: [-0.1093 -0.121   0.0607] -> [-0.18    0.0131  0.074 ] m over 2.50s, 501 samples, worst IK residual 0.69 mm, sigma_min 0.1110[0m
+[fk_node-2] [0m[INFO] [1795600888.276312528] [forward_kinematics_node]: [FK] X -0.1093 Y -0.1210 Z +0.0607 m | |v| 0.0001 m/s | |a| 0.0007 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600888.777296416] [forward_kinematics_node]: [FK] X -0.1128 Y -0.1146 Z +0.0615 m | |v| 0.0458 m/s | |a| 0.1017 m/s^2 | |J_dot q_dot| 0.0134 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600889.073404815] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600889.282962004] [forward_kinematics_node]: [FK] X -0.1310 Y -0.0780 Z +0.0649 m | |v| 0.1095 m/s | |a| 0.1221 m/s^2 | |J_dot q_dot| 0.0736 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600889.786761459] [forward_kinematics_node]: [FK] X -0.1579 Y -0.0267 Z +0.0703 m | |v| 0.1080 m/s | |a| 0.0168 m/s^2 | |J_dot q_dot| 0.0765 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600890.292499337] [forward_kinematics_node]: [FK] X -0.1770 Y +0.0081 Z +0.0735 m | |v| 0.0439 m/s | |a| 0.1290 m/s^2 | |J_dot q_dot| 0.0130 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600890.792451404] [trajectory_node]: Trajectory complete (settled in 0.02s). Final |error| = 0.00100 m[0m
+[fk_node-2] [0m[INFO] [1795600890.796505283] [forward_kinematics_node]: [FK] X -0.1805 Y +0.0141 Z +0.0739 m | |v| 0.0053 m/s | |a| 0.0822 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600890.800624717] [trajectory_node]: Logged 505 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120130.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600890.857097977] [pick_place_node]: [board 2] REWORK board on the nest -> REWORK bin[0m
+[pick_place_node-6] [0m[INFO] [1795600890.857670908] [pick_place_node]:   TASK-SPACE  down to the board  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600890.873458448] [trajectory_node]: TASK-SPACE: [-0.1803  0.0139  0.0738] -> [-0.18    0.0131  0.034 ] m over 1.50s, 301 samples, worst IK residual 0.70 mm, sigma_min 0.1081[0m
+[fk_node-2] [0m[INFO] [1795600891.301049566] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0138 Z +0.0693 m | |v| 0.0334 m/s | |a| 0.0822 m/s^2 | |J_dot q_dot| 0.0060 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600891.801060024] [forward_kinematics_node]: [FK] X -0.1799 Y +0.0134 Z +0.0450 m | |v| 0.0494 m/s | |a| 0.0177 m/s^2 | |J_dot q_dot| 0.0131 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600892.301268472] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0328 m | |v| 0.0024 m/s | |a| 0.0709 m/s^2 | |J_dot q_dot| 0.0001 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600892.433430708] [trajectory_node]: Trajectory complete (settled in 0.06s). Final |error| = 0.00098 m[0m
+[trajectory_node-4] [0m[INFO] [1795600892.438778036] [trajectory_node]: Logged 313 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120132.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600892.450838672] [pick_place_node]:   gripper close (grasp)[0m
+[trajectory_node-4] [0m[INFO] [1795600892.452379997] [trajectory_node]: Gripper -> +0.000 rad[0m
+[mujoco_bridge-1] [0m[INFO] [1795600892.680336223] [mujoco_bridge]: Gripped pcb_2 (REWORK) -> take it to the REWORK bin.[0m
+[fk_node-2] [0m[INFO] [1795600892.801892127] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0123 Z +0.0349 m | |v| 0.0019 m/s | |a| 0.0080 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600893.303909135] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0124 Z +0.0349 m | |v| 0.0001 m/s | |a| 0.0015 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600893.451762315] [pick_place_node]:   TASK-SPACE  lift  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600893.465046928] [trajectory_node]: TASK-SPACE: [-0.1803  0.0124  0.0349] -> [-0.18    0.0131  0.074 ] m over 1.50s, 301 samples, worst IK residual 0.68 mm, sigma_min 0.1070[0m
+[fk_node-2] [0m[INFO] [1795600893.807670017] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0124 Z +0.0369 m | |v| 0.0229 m/s | |a| 0.0653 m/s^2 | |J_dot q_dot| 0.0027 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600894.073309076] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600894.309857706] [forward_kinematics_node]: [FK] X -0.1797 Y +0.0129 Z +0.0587 m | |v| 0.0544 m/s | |a| 0.0503 m/s^2 | |J_dot q_dot| 0.0155 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600894.814152877] [forward_kinematics_node]: [FK] X -0.1798 Y +0.0131 Z +0.0748 m | |v| 0.0063 m/s | |a| 0.0794 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600895.095797236] [trajectory_node]: Trajectory complete (settled in 0.13s). Final |error| = 0.00100 m[0m
+[trajectory_node-4] [0m[INFO] [1795600895.104473065] [trajectory_node]: Logged 327 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120135.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600895.244504600] [pick_place_node]:   TASK-SPACE  over the REWORK bin  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600895.258063589] [trajectory_node]: TASK-SPACE: [-0.18    0.0131  0.0742] -> [-0.0896  0.138   0.0609] m over 2.50s, 501 samples, worst IK residual 0.70 mm, sigma_min 0.1073[0m
+[fk_node-2] [0m[INFO] [1795600895.318852147] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0742 m | |v| 0.0000 m/s | |a| 0.0072 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600895.822231633] [forward_kinematics_node]: [FK] X -0.1736 Y +0.0218 Z +0.0733 m | |v| 0.0559 m/s | |a| 0.1116 m/s^2 | |J_dot q_dot| 0.0199 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600896.325585865] [forward_kinematics_node]: [FK] X -0.1468 Y +0.0573 Z +0.0695 m | |v| 0.1153 m/s | |a| 0.1086 m/s^2 | |J_dot q_dot| 0.0856 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600896.826209807] [forward_kinematics_node]: [FK] X -0.1124 Y +0.1044 Z +0.0646 m | |v| 0.1075 m/s | |a| 0.0160 m/s^2 | |J_dot q_dot| 0.0717 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600897.328316416] [forward_kinematics_node]: [FK] X -0.0918 Y +0.1346 Z +0.0613 m | |v| 0.0375 m/s | |a| 0.1283 m/s^2 | |J_dot q_dot| 0.0092 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600897.762774717] [trajectory_node]: Trajectory complete (settled in 0.00s). Final |error| = 0.00098 m[0m
+[trajectory_node-4] [0m[INFO] [1795600897.770372451] [trajectory_node]: Logged 502 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120137.csv[0m
+[fk_node-2] [0m[INFO] [1795600897.831230048] [forward_kinematics_node]: [FK] X -0.0892 Y +0.1388 Z +0.0608 m | |v| 0.0041 m/s | |a| 0.0666 m/s^2 | |J_dot q_dot| 0.0001 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600897.842416644] [pick_place_node]:   gripper open (release)[0m
+[trajectory_node-4] [0m[INFO] [1795600897.842984871] [trajectory_node]: Gripper -> -0.600 rad[0m
+[mujoco_bridge-1] [0m[INFO] [1795600898.143303265] [mujoco_bridge]: Released pcb_2 (REWORK) into the REWORK bin - correct.[0m
+[fk_node-2] [0m[INFO] [1795600898.333226915] [forward_kinematics_node]: [FK] X -0.0895 Y +0.1384 Z +0.0608 m | |v| 0.0002 m/s | |a| 0.0053 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600898.836966018] [forward_kinematics_node]: [FK] X -0.0895 Y +0.1384 Z +0.0608 m | |v| 0.0001 m/s | |a| 0.0007 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600898.844120394] [pick_place_node]:   TASK-SPACE  back over the nest  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600898.864835593] [trajectory_node]: TASK-SPACE: [-0.0895  0.1384  0.0608] -> [-0.18    0.0131  0.074 ] m over 2.50s, 501 samples, worst IK residual 0.71 mm, sigma_min 0.1066[0m
+[mujoco_bridge-1] [0m[INFO] [1795600899.074249896] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600899.337651699] [forward_kinematics_node]: [FK] X -0.0931 Y +0.1335 Z +0.0613 m | |v| 0.0421 m/s | |a| 0.0976 m/s^2 | |J_dot q_dot| 0.0116 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600899.841583814] [forward_kinematics_node]: [FK] X -0.1153 Y +0.1014 Z +0.0646 m | |v| 0.1086 m/s | |a| 0.1282 m/s^2 | |J_dot q_dot| 0.0728 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600900.341866224] [forward_kinematics_node]: [FK] X -0.1495 Y +0.0536 Z +0.0700 m | |v| 0.1120 m/s | |a| 0.0225 m/s^2 | |J_dot q_dot| 0.0812 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600900.844296378] [forward_kinematics_node]: [FK] X -0.1749 Y +0.0195 Z +0.0733 m | |v| 0.0513 m/s | |a| 0.1253 m/s^2 | |J_dot q_dot| 0.0169 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600901.346278894] [forward_kinematics_node]: [FK] X -0.1808 Y +0.0121 Z +0.0742 m | |v| 0.0016 m/s | |a| 0.0860 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600901.368048911] [trajectory_node]: Trajectory complete (settled in 0.00s). Final |error| = 0.00096 m[0m
+[trajectory_node-4] [0m[INFO] [1795600901.392496751] [trajectory_node]: Logged 502 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120141.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600901.442830473] [pick_place_node]: Waiting for the conveyor to bring the next board...[0m
+[fk_node-2] [0m[INFO] [1795600901.847225090] [forward_kinematics_node]: [FK] X -0.1804 Y +0.0125 Z +0.0739 m | |v| 0.0001 m/s | |a| 0.0096 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600902.350272074] [forward_kinematics_node]: [FK] X -0.1804 Y +0.0126 Z +0.0739 m | |v| 0.0001 m/s | |a| 0.0013 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600902.859658240] [forward_kinematics_node]: [FK] X -0.1804 Y +0.0126 Z +0.0739 m | |v| 0.0001 m/s | |a| 0.0002 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600903.456477498] [forward_kinematics_node]: [FK] X -0.1804 Y +0.0126 Z +0.0739 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600904.077485630] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600904.254022933] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0127 Z +0.0739 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600905.208776498] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0127 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600905.761229462] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0127 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600906.391434437] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0128 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600907.116889014] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0128 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600907.669021935] [mujoco_bridge]: Conveyor: pcb_3 (SCRAP) is on the nest -> SCRAP bin. 2 left on the belt.[0m
+[pick_place_node-6] [0m[INFO] [1795600907.770078590] [pick_place_node]: [board 3] SCRAP board on the nest -> SCRAP bin[0m
+[pick_place_node-6] [0m[INFO] [1795600907.770642197] [pick_place_node]:   TASK-SPACE  down to the board  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600907.790284396] [trajectory_node]: TASK-SPACE: [-0.1803  0.0128  0.0739] -> [-0.18    0.0131  0.034 ] m over 1.50s, 301 samples, worst IK residual 0.70 mm, sigma_min 0.1044[0m
+[fk_node-2] [0m[INFO] [1795600907.796077773] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0128 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0001 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600908.296275366] [forward_kinematics_node]: [FK] X -0.1802 Y +0.0128 Z +0.0665 m | |v| 0.0411 m/s | |a| 0.0868 m/s^2 | |J_dot q_dot| 0.0090 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600908.796698992] [forward_kinematics_node]: [FK] X -0.1799 Y +0.0131 Z +0.0415 m | |v| 0.0421 m/s | |a| 0.0132 m/s^2 | |J_dot q_dot| 0.0095 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600909.076606064] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600909.301460040] [forward_kinematics_node]: [FK] X -0.1800 Y +0.0131 Z +0.0329 m | |v| 0.0015 m/s | |a| 0.0647 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600909.347560516] [trajectory_node]: Trajectory complete (settled in 0.06s). Final |error| = 0.00100 m[0m
+[trajectory_node-4] [0m[INFO] [1795600909.353103713] [trajectory_node]: Logged 313 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120149.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600909.462455091] [pick_place_node]:   gripper close (grasp)[0m
+[trajectory_node-4] [0m[INFO] [1795600909.463570296] [trajectory_node]: Gripper -> +0.000 rad[0m
+[mujoco_bridge-1] [0m[INFO] [1795600909.688870222] [mujoco_bridge]: Gripped pcb_3 (SCRAP) -> take it to the SCRAP bin.[0m
+[fk_node-2] [0m[INFO] [1795600909.802032136] [forward_kinematics_node]: [FK] X -0.1801 Y +0.0129 Z +0.0345 m | |v| 0.0036 m/s | |a| 0.0109 m/s^2 | |J_dot q_dot| 0.0001 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600910.306254418] [forward_kinematics_node]: [FK] X -0.1801 Y +0.0131 Z +0.0345 m | |v| 0.0001 m/s | |a| 0.0007 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600910.462983330] [pick_place_node]:   TASK-SPACE  lift  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600910.473769201] [trajectory_node]: TASK-SPACE: [-0.1801  0.0131  0.0345] -> [-0.18    0.0131  0.074 ] m over 1.50s, 301 samples, worst IK residual 0.69 mm, sigma_min 0.1036[0m
+[fk_node-2] [0m[INFO] [1795600910.810838344] [forward_kinematics_node]: [FK] X -0.1803 Y +0.0131 Z +0.0366 m | |v| 0.0231 m/s | |a| 0.0657 m/s^2 | |J_dot q_dot| 0.0028 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600911.311089875] [forward_kinematics_node]: [FK] X -0.1798 Y +0.0131 Z +0.0584 m | |v| 0.0558 m/s | |a| 0.0538 m/s^2 | |J_dot q_dot| 0.0163 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600911.819228492] [forward_kinematics_node]: [FK] X -0.1799 Y +0.0131 Z +0.0748 m | |v| 0.0060 m/s | |a| 0.0822 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600912.067579681] [trajectory_node]: Trajectory complete (settled in 0.09s). Final |error| = 0.00099 m[0m
+[trajectory_node-4] [0m[INFO] [1795600912.072601665] [trajectory_node]: Logged 320 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120152.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600912.256987635] [pick_place_node]:   TASK-SPACE  over the SCRAP bin  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600912.277923250] [trajectory_node]: TASK-SPACE: [-0.1801  0.0131  0.0745] -> [-0.2478 -0.0772  0.0609] m over 2.50s, 501 samples, worst IK residual 0.53 mm, sigma_min 0.0757[0m
+[fk_node-2] [0m[INFO] [1795600912.320315034] [forward_kinematics_node]: [FK] X -0.1801 Y +0.0131 Z +0.0745 m | |v| 0.0000 m/s | |a| 0.0104 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600912.822930943] [forward_kinematics_node]: [FK] X -0.1843 Y +0.0074 Z +0.0735 m | |v| 0.0392 m/s | |a| 0.0844 m/s^2 | |J_dot q_dot| 0.0097 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600913.326425162] [forward_kinematics_node]: [FK] X -0.2032 Y -0.0185 Z +0.0697 m | |v| 0.0827 m/s | |a| 0.0795 m/s^2 | |J_dot q_dot| 0.0418 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600913.831030833] [forward_kinematics_node]: [FK] X -0.2287 Y -0.0526 Z +0.0645 m | |v| 0.0767 m/s | |a| 0.0224 m/s^2 | |J_dot q_dot| 0.0379 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600914.078388159] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600914.331410744] [forward_kinematics_node]: [FK] X -0.2456 Y -0.0745 Z +0.0613 m | |v| 0.0297 m/s | |a| 0.0895 m/s^2 | |J_dot q_dot| 0.0073 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600914.782515745] [trajectory_node]: Trajectory complete (settled in 0.00s). Final |error| = 0.00070 m[0m
+[trajectory_node-4] [0m[INFO] [1795600914.790513610] [trajectory_node]: Logged 502 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120154.csv[0m
+[fk_node-2] [0m[INFO] [1795600914.832206073] [forward_kinematics_node]: [FK] X -0.2481 Y -0.0778 Z +0.0606 m | |v| 0.0044 m/s | |a| 0.0521 m/s^2 | |J_dot q_dot| 0.0002 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600914.854433819] [pick_place_node]:   gripper open (release)[0m
+[trajectory_node-4] [0m[INFO] [1795600914.857919116] [trajectory_node]: Gripper -> -0.600 rad[0m
+[mujoco_bridge-1] [0m[INFO] [1795600915.158123491] [mujoco_bridge]: Released pcb_3 (SCRAP) into the SCRAP bin - correct.[0m
+[fk_node-2] [0m[INFO] [1795600915.336925098] [forward_kinematics_node]: [FK] X -0.2477 Y -0.0778 Z +0.0607 m | |v| 0.0002 m/s | |a| 0.0051 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600915.840794706] [forward_kinematics_node]: [FK] X -0.2477 Y -0.0778 Z +0.0606 m | |v| 0.0001 m/s | |a| 0.0007 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[pick_place_node-6] [0m[INFO] [1795600915.854988570] [pick_place_node]:   TASK-SPACE  back over the nest  (2.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600915.871910154] [trajectory_node]: TASK-SPACE: [-0.2477 -0.0778  0.0606] -> [-0.18    0.0131  0.074 ] m over 2.50s, 501 samples, worst IK residual 0.52 mm, sigma_min 0.0743[0m
+[fk_node-2] [0m[INFO] [1795600916.345042252] [forward_kinematics_node]: [FK] X -0.2450 Y -0.0742 Z +0.0614 m | |v| 0.0326 m/s | |a| 0.0819 m/s^2 | |J_dot q_dot| 0.0083 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600916.847321716] [forward_kinematics_node]: [FK] X -0.2275 Y -0.0513 Z +0.0644 m | |v| 0.0800 m/s | |a| 0.0927 m/s^2 | |J_dot q_dot| 0.0412 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600917.350942498] [forward_kinematics_node]: [FK] X -0.2019 Y -0.0172 Z +0.0695 m | |v| 0.0827 m/s | |a| 0.0037 m/s^2 | |J_dot q_dot| 0.0422 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600917.851443223] [forward_kinematics_node]: [FK] X -0.1835 Y +0.0080 Z +0.0732 m | |v| 0.0391 m/s | |a| 0.0796 m/s^2 | |J_dot q_dot| 0.0097 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600918.351618930] [forward_kinematics_node]: [FK] X -0.1795 Y +0.0138 Z +0.0741 m | |v| 0.0001 m/s | |a| 0.0585 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[trajectory_node-4] [0m[INFO] [1795600918.372915519] [trajectory_node]: Trajectory complete (settled in 0.00s). Final |error| = 0.00070 m[0m
+[trajectory_node-4] [0m[INFO] [1795600918.381525499] [trajectory_node]: Logged 501 samples -> /home/ali/my_stuff/robotics_project/ros2_ws/src/Robotics_Project/Milestone 04/Data/task_space/traj_task_20261125_120158.csv[0m
+[pick_place_node-6] [0m[INFO] [1795600918.453728193] [pick_place_node]: Waiting for the conveyor to bring the next board...[0m
+[fk_node-2] [0m[INFO] [1795600918.851638092] [forward_kinematics_node]: [FK] X -0.1795 Y +0.0137 Z +0.0741 m | |v| 0.0001 m/s | |a| 0.0080 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600919.078451873] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600919.353235751] [forward_kinematics_node]: [FK] X -0.1795 Y +0.0137 Z +0.0741 m | |v| 0.0001 m/s | |a| 0.0011 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600919.860617697] [forward_kinematics_node]: [FK] X -0.1795 Y +0.0136 Z +0.0740 m | |v| 0.0001 m/s | |a| 0.0001 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600920.685970703] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0136 Z +0.0740 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600921.503591516] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0136 Z +0.0740 m | |v| 0.0001 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600922.482371671] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0135 Z +0.0740 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600923.057905535] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0135 Z +0.0740 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600923.716363318] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0135 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600924.078673725] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[fk_node-2] [0m[INFO] [1795600924.467252983] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0135 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600925.361813917] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0134 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600926.461367195] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0134 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600927.881676082] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0134 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0000 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[mujoco_bridge-1] [0m[INFO] [1795600929.082339882] [mujoco_bridge]: real-time factor 1.00x over the last 5s (5.0s simulated), 0 resync(s). 1.00x means wall clock and sim clock agree.[0m
+[mujoco_bridge-1] [0m[INFO] [1795600929.671418020] [mujoco_bridge]: Conveyor: pcb_4 (SCRAP) is on the nest -> SCRAP bin. 1 left on the belt.[0m
+[pick_place_node-6] [0m[INFO] [1795600929.759478072] [pick_place_node]: [board 4] SCRAP board on the nest -> SCRAP bin[0m
+[pick_place_node-6] [0m[INFO] [1795600929.760395639] [pick_place_node]:   TASK-SPACE  down to the board  (1.5 s)[0m
+[trajectory_node-4] [0m[INFO] [1795600929.776394587] [trajectory_node]: TASK-SPACE: [-0.1797  0.0134  0.0739] -> [-0.18    0.0131  0.034 ] m over 1.50s, 301 samples, worst IK residual 0.70 mm, sigma_min 0.0989[0m
+[fk_node-2] [0m[INFO] [1795600929.781245920] [forward_kinematics_node]: [FK] X -0.1797 Y +0.0134 Z +0.0739 m | |v| 0.0000 m/s | |a| 0.0001 m/s^2 | |J_dot q_dot| 0.0000 m/s^2[0m
+[fk_node-2] [0m[INFO] [1795600930.285480574] [forward_kinematics_node]: [FK] X -0.1796 Y +0.0134 Z +0.0663 m | |v| 0.0409 m/s | |a| 0.0845 m/s^2 | |J_dot q_dot| 0.0088 m/s^2[0m

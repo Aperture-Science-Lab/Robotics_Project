@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 """
-ROS 2 GUI Node connected with the Forward Kinematics and Inverse Kinematics nodes.
+Control GUI for the Low Cost Robot Arm.
 
-Six simulation modes, each driveable three ways (sliders / constant entries /
-signal builder):
+Six kinematics modes, each drivable three ways (sliders / constant entries /
+sine signal builder):
 
-  FK Position      joint angles  q        -> /joint_commands
-  FK Velocity      joint rates   qdot     -> /joint_velocity_commands
-  FK Acceleration  joint accels  qddot    -> /joint_acceleration_commands
-  IK Position      target [X, Y, Z]       -> /target_pose
-  IK Velocity      target [Vx, Vy, Vz]    -> /target_velocity
-  IK Acceleration  target [Ax, Ay, Az]    -> /target_accel
+  FK Position      joint angles  q                -> /joint_commands
+  FK Velocity      joint rates   q_dot, integrated   q += q_dot dt          -> /joint_commands
+  FK Acceleration  joint accels  q_ddot, integrated  q_dot += q_ddot dt,
+                                                     q += q_dot dt          -> /joint_commands
+  IK Position      target X = [x, y, z]           -> /target_pose      (ik_node)
+  IK Velocity      target X_dot                   -> /target_velocity  (ik_node)
+  IK Acceleration  target X_ddot                  -> /target_accel     (ik_node)
 
-Live feedback from the FK node (/current_ee_pose, /current_ee_velocity,
-/current_ee_accel) and from the IK node (/joint_velocity_commands,
-/joint_acceleration_commands) is shown at the top.
+In the FK modes the GUI moves the joints and the FK node reports what the
+tool does (X, X_dot, X_ddot from the measured /joint_state); in the IK modes
+the GUI asks for a tool motion and the IK node resolves the joint motion.
 
-TRANSLATION ONLY: the Cartesian task space is position / velocity /
-acceleration of the tool tip. Orientation is not commanded..
+A fourth tab sends goals to trajectory_node (joint- or task-space trajectory,
+gripper open/close) and shows its progress.
+
+The task space is the POSITION of the tool tip; orientation is not commanded.
 """
 
 import rclpy
@@ -25,54 +28,55 @@ from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray, String
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
 
-import tkinter as tk
-from tkinter import ttk
+import json
+import math
+import sys
 import threading
 import time
-import math
-import json
+import tkinter as tk
+from pathlib import Path
+from tkinter import ttk
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from kinematics import Q_MIN, Q_MAX, QDOT_MAX, QDDOT_MAX     # noqa: E402
+from trajectory_node import GRIP_OPEN, GRIP_CLOSED          # noqa: E402
 
 STREAM_HZ = 50.0
 STREAM_DT = 1.0 / STREAM_HZ
 
-# Joint limits from low_cost_robot_arm.xml (6th entry is the gripper)
-JOINT_LIMITS = [
-    (-2.20, 2.20),   # Joint 1: Base Yaw
-    (-1.57, 0.60),   # Joint 2: Shoulder Pitch
-    (-1.57, 1.45),   # Joint 3: Elbow Pitch
-    (-2.00, 2.00),   # Joint 4: Wrist Pitch
-    (-3.14, 3.14),   # Joint 5: Wrist Roll
-    (-1.60, 0.032),  # Joint 6: Gripper
-]
+# Joint limits: the five arm joints from kinematics.py, plus the gripper
+# (all from low_cost_robot_arm.xml)
+JOINT_LIMITS = [(float(lo), float(hi)) for lo, hi in zip(Q_MIN, Q_MAX)] + [(-1.60, 0.032)]
 
 # Actuator rate limits used when the GUI integrates its own motion
-QDOT_LIMIT = 3.0      # rad/s
-QDDOT_LIMIT = 20.0    # rad/s^2
+QDOT_LIMIT = float(QDOT_MAX[0])      # rad/s
+QDDOT_LIMIT = float(QDDOT_MAX[0])    # rad/s^2
 
 # Cartesian home point the IK position signal oscillates about
 HOME_XYZ = (-0.18, 0.00, 0.18)
 
 # ==============================================================================
-# TRAJECTORY PRESETS  (PCB sorting cell, coordinates from scene.xml)
+# PICK-AND-PLACE WAYPOINTS  (PCB sorting cell, coordinates from scene.xml)
 # ==============================================================================
-# The PCB sits on the inspection nest with its top face at z = 0.034; the nest
-# pins stand 3 mm proud at x = +/-0.012, so the approach height clears them.
+# Used by the Trajectory tab and by pick_place_node.py.
+#
+# Task space (tool-tip position, m). The tool tip (frame_ee) sits on the fixed
+# finger pad, 13 mm to the side of the board centre, so the grasp point is the
+# board centre on the nest (-0.18, 0, 0.031) shifted by that offset. The bin
+# targets were solved on the MuJoCo model so that the HELD BOARD's centre, not
+# the tool tip, ends 58 mm above the centre of its bin; the offset turns with
+# the base, which is why each bin's correction is different. The nest pins
+# stand 3 mm proud at x = +/-0.012, which the approach height clears.
 TASK_PRESETS = [
-    ("Above nest",   (-0.180,  0.000, 0.074)),
-    ("At PCB (grasp)", (-0.180,  0.000, 0.034)),
-    ("Above pass bin",   (-0.100, -0.130, 0.055)),
-    ("Above rework bin", (-0.100,  0.130, 0.055)),
-    ("Above scrap bin",  (-0.245, -0.090, 0.055)),
+    ("Above nest",       (-0.1800,  0.0131, 0.0740)),
+    ("At PCB (grasp)",   (-0.1800,  0.0131, 0.0340)),
+    ("Above pass bin",   (-0.1095, -0.1209, 0.0609)),
+    ("Above rework bin", (-0.0896,  0.1380, 0.0609)),
+    ("Above scrap bin",  (-0.2478, -0.0772, 0.0609)),
 ]
 
-# Gripper joint range is [-1.60, 0.032]. 0 is CLOSED (pads 7 mm apart) and
-# more negative opens it: -0.6 opens the pads to 39 mm, enough to straddle a
-# 20 mm board. (These two were swapped before.)
-GRIP_OPEN = -0.6
-GRIP_CLOSED = 0.0
-
-# Pick-and-place waypoints (joint-space, rad), computed on the MuJoCo model and
-# collision-checked along every leg, including while carrying a board.
+# Joint space (rad), computed on the MuJoCo model and collision-checked along
+# every leg, including while carrying a board.
 #   Ready : fixed finger pad 25 mm above the nest board, gripper open
 #   Grasp : pads around the board on the nest (then Close)
 #   bins  : board centre 50 mm above the bin (then Open to drop it)
@@ -203,10 +207,8 @@ class RobotGUINode(Node):
         super().__init__('robot_gui_node')
         self.get_logger().info("Robot Control GUI Node Initialized.")
 
-        # --- Publishers: the six command channels ---
+        # --- Publishers: joint positions (FK modes) and the three IK targets ---
         self.joint_command_pub = self.create_publisher(Float64MultiArray, '/joint_commands', 10)
-        self.joint_vel_pub = self.create_publisher(Float64MultiArray, '/joint_velocity_commands', 10)
-        self.joint_acc_pub = self.create_publisher(Float64MultiArray, '/joint_acceleration_commands', 10)
         self.cartesian_target_pub = self.create_publisher(PoseStamped, '/target_pose', 10)
         self.cartesian_vel_pub = self.create_publisher(Vector3Stamped, '/target_velocity', 10)
         self.cartesian_acc_pub = self.create_publisher(Vector3Stamped, '/target_accel', 10)
@@ -226,10 +228,6 @@ class RobotGUINode(Node):
         self.create_subscription(String, '/trajectory/status',
                                  self.traj_status_callback, 10)
 
-        self.num_joints = 6
-        self.joint_limits = JOINT_LIMITS
-
-        self.current_cartesian_values = {"X": HOME_XYZ[0], "Y": HOME_XYZ[1], "Z": HOME_XYZ[2]}
         self.measured_ee_pose = {"X": 0.0, "Y": 0.0, "Z": 0.0}
         self.measured_ee_vel = {"X": 0.0, "Y": 0.0, "Z": 0.0}
         self.measured_ee_acc = {"X": 0.0, "Y": 0.0, "Z": 0.0}
@@ -237,7 +235,6 @@ class RobotGUINode(Node):
         self.resolved_qddot = [0.0] * 5
 
         self.signal_running = False
-        self.signal_thread = None
 
         # Trajectory execution state, mirrored from /trajectory/status. While a
         # trajectory runs the GUI must NOT publish /joint_commands itself, or
@@ -288,21 +285,8 @@ class RobotGUINode(Node):
         msg.data = [float(x) for x in joint_angles]
         self.joint_command_pub.publish(msg)
 
-    def dispatch_joint_velocities(self, qdot):
-        msg = Float64MultiArray()
-        msg.data = [float(v) for v in qdot[:5]]
-        self.joint_vel_pub.publish(msg)
-
-    def dispatch_joint_accelerations(self, qddot):
-        msg = Float64MultiArray()
-        msg.data = [float(v) for v in qddot[:5]]
-        self.joint_acc_pub.publish(msg)
-
     def dispatch_ik_command(self, x, y, z):
-        self.current_cartesian_values["X"] = x
-        self.current_cartesian_values["Y"] = y
-        self.current_cartesian_values["Z"] = z
-
+        """Target tool-tip position -> /target_pose (solved by ik_node)."""
         pose_msg = PoseStamped()
         pose_msg.header.stamp = self.get_clock().now().to_msg()
         pose_msg.header.frame_id = "frame_0"
@@ -394,16 +378,6 @@ class GUIApp:
                 grid, text=MODE_SPECS[mode]["label"], variable=self.mode_var,
                 value=mode, command=self.on_mode_change
             ).grid(row=idx % 3, column=idx // 3, sticky="w", padx=4, pady=1)
-
-        # Integration option for the FK rate modes
-        opt_row = ttk.Frame(mode_frame)
-        opt_row.pack(fill="x", pady=(6, 0))
-        self.integrate_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(
-            opt_row,
-            text="FK rate modes: integrate commands into joint motion (so the arm actually moves)",
-            variable=self.integrate_var
-        ).pack(anchor="w")
 
         # ---------------- Tabs ----------------
         self.notebook = ttk.Notebook(root)
@@ -544,9 +518,9 @@ class GUIApp:
         Front end for trajectory_node.py. The GUI only SENDS a goal; the
         planning, the controller and the loop closure all live in that node.
 
-        Joint-space -> quintic in joint space, 5 decoupled SISO fuzzy controllers.
-        Task-space  -> straight line + quintic timing, 3 decoupled SISO fuzzy
-                       controllers on the Cartesian axes, then J# to joint rates.
+        Joint-space -> quintic per joint, one SISO fuzzy controller per joint.
+        Task-space  -> straight line with quintic timing, MIMO fuzzy controller
+                       on the Cartesian error, then J# to joint rates.
         """
         tab = self.tab_traj
 
@@ -815,30 +789,25 @@ class GUIApp:
         """
         Per-cycle publish for the time-dependent modes.
 
-        FK rate modes optionally integrate the command into joint motion, so the
-        arm really moves and the FK node sees a posture consistent with the
-        rates it is given. Position is published first, so the FK node's
-        joint_vel_cmd_cb / joint_acc_cmd_cb evaluate at the current posture.
+        The arm is position-controlled, so the FK rate modes integrate the
+        commanded rates into joint positions here; the FK node then reports
+        the tool velocity / acceleration from the measured motion.
+            FK_VEL:  q_(k+1) = q_k + q_dot dt
+            FK_ACC:  q_dot_(k+1) = q_dot_k + q_ddot dt,  q_(k+1) = q_k + q_dot_(k+1) dt
         """
         if self.node.traj_running or time.time() < self.stream_hold_until:
             return          # trajectory_node owns /joint_commands, or a reset is landing
         if mode == "FK_VEL":
-            if self.integrate_var.get():
-                self.sim_q = integrate_velocity(self.sim_q, list(vals) + [0.0],
-                                                dt, JOINT_LIMITS)
-                self.sim_qdot = list(vals)
-                self.node.dispatch_fk_command(self.sim_q)
-            self.node.dispatch_joint_velocities(vals)
+            self.sim_q = integrate_velocity(self.sim_q, list(vals) + [0.0], dt, JOINT_LIMITS)
+            self.sim_qdot = list(vals)
+            self.node.dispatch_fk_command(self.sim_q)
 
         elif mode == "FK_ACC":
-            if self.integrate_var.get():
-                q, qd = integrate_acceleration(self.sim_q[:5], self.sim_qdot,
-                                               list(vals), dt, JOINT_LIMITS[:5])
-                self.sim_q = q + [self.sim_q[5]]
-                self.sim_qdot = qd
-                self.node.dispatch_fk_command(self.sim_q)
-                self.node.dispatch_joint_velocities(self.sim_qdot)
-            self.node.dispatch_joint_accelerations(vals)
+            q, qd = integrate_acceleration(self.sim_q[:5], self.sim_qdot,
+                                           list(vals), dt, JOINT_LIMITS[:5])
+            self.sim_q = q + [self.sim_q[5]]
+            self.sim_qdot = qd
+            self.node.dispatch_fk_command(self.sim_q)
 
         elif mode == "IK_VEL":
             self.node.dispatch_target_velocity(vals[0], vals[1], vals[2])
@@ -949,29 +918,45 @@ class GUIApp:
         self.stream_hold_until = time.time() + 0.5
 
         self.node.dispatch_fk_command([0.0] * 6)
-        self.node.dispatch_joint_velocities([0.0] * 5)
-        self.node.dispatch_joint_accelerations([0.0] * 5)
-        # Only sync the IK target; publishing it would make the IK node move
-        # the arm to HOME_XYZ instead of leaving it at zero.
-        self.node.current_cartesian_values.update(X=HOME_XYZ[0], Y=HOME_XYZ[1], Z=HOME_XYZ[2])
+
+
+def _spin(node):
+    """ROS callbacks on a background thread (Tk owns the main thread)."""
+    try:
+        rclpy.spin(node)
+    except Exception:          # context shut down while spinning: normal on exit
+        pass
 
 
 def main():
     rclpy.init()
     node = RobotGUINode()
 
-    ros_thread = threading.Thread(target=rclpy.spin, args=(node,), daemon=True)
+    ros_thread = threading.Thread(target=_spin, args=(node,), daemon=True)
     ros_thread.start()
 
     root = tk.Tk()
     app = GUIApp(root, node)
+
+    # rclpy turns SIGINT / SIGTERM into a ROS shutdown, but Tk's main loop
+    # never sees it: close the window as soon as ROS is no longer running.
+    def close_when_ros_stops():
+        if rclpy.ok():
+            root.after(200, close_when_ros_stops)
+        else:
+            root.quit()
+    root.after(200, close_when_ros_stops)
+
     try:
         root.mainloop()
+    except KeyboardInterrupt:
+        pass
     finally:
         app.stream_running = False
         node.signal_running = False
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

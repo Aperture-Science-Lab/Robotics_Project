@@ -47,9 +47,13 @@ install(DIRECTORY launch
 
 # Install all Python nodes so ROS2 can find them as executables
 install(PROGRAMS
-  scripts/gui_node.py
+  scripts/kinematics.py
   scripts/fk_node.py
   scripts/ik_node.py
+  scripts/trajectory_node.py
+  scripts/pick_place_node.py
+  scripts/gui_node.py
+  scripts/mujoco_bridge.py
   DESTINATION lib/${PROJECT_NAME}
 )
 ###############################################################################################################################################
