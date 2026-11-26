@@ -20,7 +20,19 @@ at which each point is reached. Two planners, one output (/joint_commands):
                  q_dot_cmd = J# X_dot_cmd + null space  (inverse velocity kin.)
                  q_cmd     = integral of q_dot_cmd
 
-In both loops the controller output is a VELOCITY added to the planned
+Either loop can run OPEN-LOOP instead ("controller": false in the command,
+or the GUI's "Closed-loop control" box unticked). The planned trajectory is
+then sent to the servos with no feedback from the measured state:
+
+  JOINT-SPACE open loop   q_cmd(t) = q_des(t)                  the plan itself
+  TASK-SPACE  open loop   q_dot_cmd = J#(q_cmd) X_dot_des + null space
+                          q_cmd     = integral of q_dot_cmd    (resolved rate,
+                                      Jacobian of the COMMAND, never of q_act)
+
+so any error - gravity sag, servo lag, integration drift - stays uncorrected.
+Comparing the two logs is the measure of what the controller contributes.
+
+In both closed loops the controller output is a VELOCITY added to the planned
 (feed-forward) velocity, and the sum is integrated into the position command
 the arm's servos follow. The integration also gives integral action, which
 removes the gravity sag in --dynamics mode. After T the reference holds at
@@ -34,13 +46,14 @@ the arm lands exactly on each command, the error stays near zero and the plan
 is followed by the feed-forward alone - useful for checking the plan.
 
 Commands arrive on /trajectory_command as JSON:
-    {"mode": "joint",   "q_end": [0.3, -0.5, 0.4, 0.2, 0.0], "T": 3.0}
-    {"mode": "task",    "x_end": [-0.18, 0.0, 0.07],          "T": 3.0}
+    {"mode": "joint",   "q_end": [0.3, -0.5, 0.4, 0.2, 0.0], "T": 3.0, "controller": true}
+    {"mode": "task",    "x_end": [-0.18, 0.0, 0.07],          "T": 3.0, "controller": false}
     {"mode": "home",    "T": 3.0}
+("controller" is optional and defaults to the use_controller parameter, true.)
     {"mode": "gripper", "value": -0.6}
     {"mode": "stop"}
 Status is published on /trajectory/status (JSON) for the GUI and sequencer.
-Every executed trajectory is logged to traj_<mode>_<time>.csv.
+Every executed trajectory is logged to traj_<mode>_<closed|open>_<time>.csv.
 """
 
 import json
@@ -294,6 +307,14 @@ class TrajectoryNode(Node):
         self.declare_parameter('flc_kde', 0.30)         # m/s    : rate at full scale
         self.declare_parameter('flc_ku', 0.08)          # m/s    : max output
         self.declare_parameter('k_null', 1.0)           # null-space joint-limit avoidance gain
+        # Default for commands that do not say: true = closed loop (FLC feedback),
+        # false = open loop (the plan alone, no feedback). The environment
+        # variable TRAJ_USE_CONTROLLER (true/false) sets the start-up value, so
+        # a run script can choose the mode for a whole launch without editing
+        # the launch file; `ros2 param set` changes it while running.
+        env = os.environ.get('TRAJ_USE_CONTROLLER', '').strip().lower()
+        env_default = env not in ('0', 'false', 'off', 'no', 'open')
+        self.declare_parameter('use_controller', env_default)
         self.declare_parameter('log_dir', '')
 
         p = lambda name: float(self.get_parameter(name).value)
@@ -309,6 +330,7 @@ class TrajectoryNode(Node):
 
         # ---- execution state ----
         self.mode = None            # 'joint' | 'task' | None
+        self.closed_loop = True     # this trajectory: FLC feedback on (True) or open loop
         self.traj = None            # planned arrays
         self.t0 = None
         self.q_cmd = np.zeros(N_JOINTS)
@@ -335,6 +357,8 @@ class TrajectoryNode(Node):
             f"Trajectory node ready at {CONTROL_HZ:.0f} Hz.\n"
             f"  Joint FLC  {self.flc_joint[0].describe()} (same on all five joints)\n"
             f"  Task  FLC  {self.flc_task.describe()} (same on all three axes)\n"
+            f"  Default: {'closed loop (controller ON)' if self.get_parameter('use_controller').value else 'OPEN LOOP (controller OFF)'}; "
+            f"each command can override it with \"controller\": true/false.\n"
             f"  Run mujoco_bridge.py with --dynamics to see the controllers work; "
             f"in kinematic mode the error stays near zero.")
 
@@ -372,7 +396,12 @@ class TrajectoryNode(Node):
             # trajectory command if the arm is still there: in --dynamics mode
             # it includes the lead that holds the arm up against gravity.
             if self.mode is None and self.have_state:
-                if not (self.have_cmd and np.abs(self.q_cmd - self.q_act).max() < 0.05):
+                # Open loop never re-anchors to the measured joints: doing so
+                # would lower the set-point to the sagged pose, and the arm
+                # would sag again below that on every gripper action.
+                keep = self.have_cmd and (not self.closed_loop or
+                                          np.abs(self.q_cmd - self.q_act).max() < 0.05)
+                if not keep:
                     self.q_cmd = self.q_act.copy()
                 self.publish_command()
             return
@@ -381,32 +410,37 @@ class TrajectoryNode(Node):
             self.get_logger().warning("No /joint_state yet - is mujoco_bridge.py running?")
             return
 
+        closed = cmd.get('controller', bool(self.get_parameter('use_controller').value))
+        if isinstance(closed, str):
+            closed = closed.strip().lower() in ('1', 'true', 'on', 'yes', 'closed')
+        closed = bool(closed)
+
         T = float(cmd.get('T', 3.0))
         if T <= 0.0:
             self.get_logger().error("T must be positive")
             return
 
         if mode == 'home':
-            self.start_joint_space(HOME_Q, T)
+            self.start_joint_space(HOME_Q, T, closed)
         elif mode == 'joint':
             q_end = np.asarray(cmd.get('q_end', HOME_Q), dtype=float).reshape(-1)
             if q_end.size != N_JOINTS:
                 self.get_logger().error(f"q_end needs {N_JOINTS} values, got {q_end.size}")
                 return
-            self.start_joint_space(q_end, T)
+            self.start_joint_space(q_end, T, closed)
         elif mode == 'task':
             x_end = np.asarray(cmd.get('x_end', [0, 0, 0]), dtype=float).reshape(-1)
             if x_end.size != 3:
                 self.get_logger().error(f"x_end needs 3 values, got {x_end.size}")
                 return
-            self.start_task_space(x_end, T)
+            self.start_task_space(x_end, T, closed)
         else:
             self.get_logger().error(f"Unknown mode '{mode}'")
 
     # ------------------------------------------------------------------
-    def start_joint_space(self, q_end, T):
+    def start_joint_space(self, q_end, T, closed=True):
         q_end = np.clip(q_end, Q_MIN, Q_MAX)
-        q_start = self.q_act.copy()                 # start from where the arm IS
+        q_start = self.start_posture(closed)        # closed: where the arm IS
 
         t, q, q_dot, q_ddot = plan_joint_space_trajectory(q_start, q_end, T, DT)
 
@@ -422,15 +456,16 @@ class TrajectoryNode(Node):
 
         self.mode = 'joint'
         self.traj = {'t': t, 'q': q, 'q_dot': q_dot, 'q_ddot': q_ddot, 'T': T, 'n': len(t)}
-        self.begin_execution()
+        self.begin_execution(closed, q_start)
         self.get_logger().info(
-            f"JOINT-SPACE: {np.round(q_start, 3)} -> {np.round(q_end, 3)} "
-            f"over {T:.2f}s, {len(t)} samples")
+            f"JOINT-SPACE ({self.loop_name()}): {np.round(q_start, 3)} -> "
+            f"{np.round(q_end, 3)} over {T:.2f}s, {len(t)} samples")
 
-    def start_task_space(self, x_end, T):
+    def start_task_space(self, x_end, T, closed=True):
         # The line starts at the measured tool position, so there is no step
         # between where the arm is and where the reference begins.
-        x_start = ee_position(self.q_act)
+        q_start = self.start_posture(closed)
+        x_start = ee_position(q_start)
 
         t, X, X_dot, X_ddot = plan_task_space_trajectory(x_start, x_end, T, DT)
 
@@ -440,7 +475,7 @@ class TrajectoryNode(Node):
         # straight in the plan and curved in execution is worse than one known
         # to be curved.
         worst_err, worst_sigma = 0.0, np.inf
-        q_probe = self.q_act.copy()
+        q_probe = q_start.copy()
         for i in range(0, len(t), max(1, len(t) // 25)):
             q_probe, err = inverse_kinematics(X[i], q_probe)
             worst_err = max(worst_err, err)
@@ -457,14 +492,36 @@ class TrajectoryNode(Node):
 
         self.mode = 'task'
         self.traj = {'t': t, 'X': X, 'X_dot': X_dot, 'X_ddot': X_ddot, 'T': T, 'n': len(t)}
-        self.begin_execution()
+        self.begin_execution(closed, q_start)
         self.get_logger().info(
-            f"TASK-SPACE: {np.round(x_start, 4)} -> {np.round(x_end, 4)} m "
+            f"TASK-SPACE ({self.loop_name()}): {np.round(x_start, 4)} -> {np.round(x_end, 4)} m "
             f"over {T:.2f}s, {len(t)} samples, worst IK residual "
             f"{worst_err * 1000:.2f} mm, sigma_min {worst_sigma:.4f}")
 
-    def begin_execution(self):
-        self.q_cmd = self.q_act.copy()             # anchor the integrator
+    def loop_name(self):
+        return "closed loop, FLC on" if self.closed_loop else "OPEN LOOP, no feedback"
+
+    def start_posture(self, closed):
+        """
+        Where a new plan starts.
+
+        Closed loop: the MEASURED posture, so the reference begins exactly at
+        the arm and there is no step for the controller to chase.
+
+        Open loop: the last COMMANDED posture. Starting from the measured one
+        would be feedback by the back door: every leg would re-anchor to the
+        sagged pose and add its own sag on top, so the open-loop error would
+        grow leg after leg instead of showing what the plan alone produces.
+        (The first move of a run has no command yet and starts from q_act.)
+        """
+        if not closed and self.have_cmd:
+            return self.q_cmd.copy()
+        return self.q_act.copy()
+
+    def begin_execution(self, closed=True, q_start=None):
+        self.closed_loop = bool(closed)
+        # anchor the integrator at the plan's start posture
+        self.q_cmd = (self.q_act if q_start is None else q_start).copy()
         self.have_cmd = True
         self.log_rows = []
         self.t0 = time.time()
@@ -511,11 +568,12 @@ class TrajectoryNode(Node):
                 how = (f"settled in {t_over:.2f}s" if err < tol
                        else f"NOT settled after {SETTLE_MAX:.1f}s")
                 self.get_logger().info(
-                    f"Trajectory complete ({how}). Final |error| = {err:.5f} {unit}")
+                    f"Trajectory complete, {self.loop_name()} ({how}). "
+                    f"Final |error| = {err:.5f} {unit}")
                 self.finish()
 
     # ------------------------------------------------------------------
-    def integrate_command(self, qdot_cmd, freeze_whole_step):
+    def integrate_command(self, qdot_cmd, freeze_whole_step, lead_bound=True):
         """
         The integrator of the loop:   q_cmd(k+1) = q_cmd(k) + q_dot_cmd * Ts
 
@@ -527,7 +585,9 @@ class TrajectoryNode(Node):
           * Lead bound: the command may lead the measured arm by at most
             MAX_LAG plus the lead the position servo needs to move at that
             speed (kv/kp * q_dot), so a blocked joint cannot store up a lurch.
-            Only components that would grow the lead further are held.
+            Only components that would grow the lead further are held. This
+            reads the MEASURED joints, so open loop turns it off
+            (lead_bound=False).
 
         Returns (q_dot_cmd, frozen, scale).
         """
@@ -546,11 +606,12 @@ class TrajectoryNode(Node):
                 q_new = self.q_cmd
         self.q_cmd = q_new
 
-        lag = self.q_cmd - self.q_act
-        allowed = MAX_LAG + SERVO_LEAD * np.abs(qdot_cmd)
-        blocked = (np.abs(lag) > allowed) & (np.sign(qdot_cmd) == np.sign(lag))
-        if blocked.any():
-            self.q_cmd = np.where(blocked, self.q_cmd - qdot_cmd * DT, self.q_cmd)
+        if lead_bound:
+            lag = self.q_cmd - self.q_act
+            allowed = MAX_LAG + SERVO_LEAD * np.abs(qdot_cmd)
+            blocked = (np.abs(lag) > allowed) & (np.sign(qdot_cmd) == np.sign(lag))
+            if blocked.any():
+                self.q_cmd = np.where(blocked, self.q_cmd - qdot_cmd * DT, self.q_cmd)
         self.q_cmd = np.clip(self.q_cmd, Q_MIN, Q_MAX)
         return qdot_cmd, frozen, scale
 
@@ -568,11 +629,16 @@ class TrajectoryNode(Node):
         q_des = self.traj['q'][k]
         qdot_des = self.traj['q_dot'][k]
 
-        q_e = q_des - self.q_act
-        q_e_dot = qdot_des - self.qdot_act
-        u = np.array([self.flc_joint[i](q_e[i], q_e_dot[i]) for i in range(N_JOINTS)])
-
-        _, _, scale = self.integrate_command(qdot_des + u, freeze_whole_step=False)
+        if self.closed_loop:
+            q_e = q_des - self.q_act
+            q_e_dot = qdot_des - self.qdot_act
+            u = np.array([self.flc_joint[i](q_e[i], q_e_dot[i]) for i in range(N_JOINTS)])
+            _, _, scale = self.integrate_command(qdot_des + u, freeze_whole_step=False)
+        else:
+            # OPEN LOOP: the planned joint angles go straight to the servos.
+            # q_act is never read, so nothing corrects sag or lag.
+            self.q_cmd = np.clip(q_des, Q_MIN, Q_MAX)
+            scale = 1.0
         if scale < 1.0:
             self.get_logger().warning(f"Joint rate limit hit: command scaled to "
                                       f"{scale * 100:.0f}%", throttle_duration_sec=1.0)
@@ -607,19 +673,30 @@ class TrajectoryNode(Node):
         J = jacobian(self.q_act)
         Xdot_act = J @ self.qdot_act
 
-        X_e = X_des - X_act
-        X_e_dot = Xdot_des - Xdot_act
-        Xdot_cmd = Xdot_des + self.flc_task(X_e, X_e_dot)
+        if self.closed_loop:
+            X_e = X_des - X_act
+            X_e_dot = Xdot_des - Xdot_act
+            Xdot_cmd = Xdot_des + self.flc_task(X_e, X_e_dot)
+            q_lin = self.q_act              # linearise about the MEASURED posture
+            J_lin = J
+        else:
+            # OPEN LOOP: feed-forward velocity only, resolved through the
+            # Jacobian of the COMMANDED posture. The measured state is used
+            # for logging, never for the command.
+            Xdot_cmd = Xdot_des
+            q_lin = self.q_cmd
+            J_lin = jacobian(self.q_cmd)
 
         # Inverse velocity kinematics with adaptive damping, and the two
         # redundant DoF spent on staying away from the joint limits
-        J_pinv, sigma_min, lam = damped_pinv(J)
+        J_pinv, sigma_min, lam = damped_pinv(J_lin)
         qdot_cmd = J_pinv @ Xdot_cmd
         if self.k_null != 0.0:
-            qdot_cmd += null_space_projector(J, J_pinv) @ (
-                -self.k_null * joint_limit_gradient(self.q_act))
+            qdot_cmd += null_space_projector(J_lin, J_pinv) @ (
+                -self.k_null * joint_limit_gradient(q_lin))
 
-        qdot_cmd, frozen, scale = self.integrate_command(qdot_cmd, freeze_whole_step=True)
+        qdot_cmd, frozen, scale = self.integrate_command(
+            qdot_cmd, freeze_whole_step=True, lead_bound=self.closed_loop)
 
         # f(q_cmd), for the same desired-vs-achieved comparison as joint space
         x_cmd = ee_position(self.q_cmd)
@@ -674,6 +751,7 @@ class TrajectoryNode(Node):
         msg = String()
         msg.data = json.dumps({'running': running, 'mode': self.mode or 'idle',
                                'progress': round(progress, 3),
+                               'controller': bool(self.closed_loop),
                                'gripper': round(float(self.grip_cmd), 4)})
         self.status_pub.publish(msg)
 
@@ -686,7 +764,8 @@ class TrajectoryNode(Node):
           task space : q_ref = q_cmd;   x_ref = X_des(t); x_des = f(q_cmd); x_meas = f(q_act)
         """
         path = os.path.join(self.log_dir,
-                            f"traj_{self.mode}_{time.strftime('%Y%m%d_%H%M%S')}.csv")
+                            f"traj_{self.mode}_{'closed' if self.closed_loop else 'open'}_"
+                            f"{time.strftime('%Y%m%d_%H%M%S')}_{int(time.time() * 1000) % 1000:03d}.csv")
         cols = (['t', 'frozen']
                 + [f'q_ref{i}' for i in range(N_JOINTS)]
                 + [f'q_cmd{i}' for i in range(N_JOINTS)]

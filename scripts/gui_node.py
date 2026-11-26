@@ -242,6 +242,7 @@ class RobotGUINode(Node):
         self.traj_running = False
         self.traj_mode = 'idle'
         self.traj_progress = 0.0
+        self.traj_closed = True
         self.traj_seen = False
 
     # ---------------- feedback ----------------
@@ -276,6 +277,7 @@ class RobotGUINode(Node):
         self.traj_running = bool(st.get('running', False))
         self.traj_mode = str(st.get('mode', 'idle'))
         self.traj_progress = float(st.get('progress', 0.0))
+        self.traj_closed = bool(st.get('controller', True))
         self.traj_seen = True
 
     # ---------------- dispatch ----------------
@@ -324,12 +326,114 @@ class RobotGUINode(Node):
 # GUI
 # ==============================================================================
 
+class RangeScale(ttk.Scale):
+    """
+    ttk.Scale that always runs 0..1000 internally and converts to real units.
+
+    On macOS, ttk.Scale is drawn by the native Aqua slider, which fails to
+    draw the thumb for some ranges that are not symmetric about zero. That
+    is exactly joints 2 (-1.57..0.60), 3 (-1.57..1.45) and 6 (-1.60..0.032),
+    while joints 1, 4 and 5 (+/-2.2, +/-2.0, +/-3.14) were fine. A plain
+    0..1000 range always draws, so the widget uses that and maps to the
+    joint range in get() / set() / the command callback.
+    """
+    STEPS = 1000.0
+
+    def __init__(self, master, lo, hi, command=None, **kw):
+        self.lo, self.hi = float(lo), float(hi)
+        cb = None
+        if command is not None:
+            cb = lambda p: command(self._to_real(float(p)))
+        super().__init__(master, from_=0.0, to=self.STEPS, command=cb, **kw)
+
+    def _to_real(self, p):
+        return self.lo + (self.hi - self.lo) * p / self.STEPS
+
+    def get(self, x=None, y=None):
+        return self._to_real(float(super().get()))
+
+    def set(self, value):
+        v = clamp(float(value), self.lo, self.hi)
+        super().set((v - self.lo) / (self.hi - self.lo) * self.STEPS)
+
+
+def make_scrollable_tab(notebook, text):
+    """
+    Add a notebook page whose content scrolls vertically.
+
+    pack() hands out space in packing order, and a notebook asks for the
+    height of its tallest page (the Trajectory tab). On a laptop screen that
+    is more than is left under the feedback panels and the mode selector, so
+    the bottom of every tab used to be cut off. Putting each page inside a
+    canvas lets it be any height: whatever does not fit scrolls into view.
+
+    Returns the inner frame, which is used exactly like a plain tab frame.
+    """
+    outer = ttk.Frame(notebook)
+    bg = ttk.Style().lookup("TFrame", "background") or None
+    canvas = tk.Canvas(outer, highlightthickness=0, borderwidth=0)
+    if bg:
+        try:
+            canvas.configure(background=bg)
+        except tk.TclError:
+            pass
+    vsb = ttk.Scrollbar(outer, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=vsb.set)
+    vsb.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+
+    inner = ttk.Frame(canvas, padding=10)
+    window = canvas.create_window((0, 0), window=inner, anchor="nw")
+
+    # Keep the scroll region equal to the content, and the content as wide
+    # as the visible canvas (so sliders still stretch across the tab).
+    inner.bind("<Configure>",
+               lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    canvas.bind("<Configure>",
+                lambda e: canvas.itemconfigure(window, width=e.width))
+
+    # Mouse wheel / trackpad scrolling while the pointer is over this page
+    def _wheel(event):
+        if canvas.yview() == (0.0, 1.0):
+            return                       # everything fits: nothing to scroll
+        if event.num == 4:
+            step = -1
+        elif event.num == 5:
+            step = 1
+        elif sys.platform == "darwin":
+            step = -int(event.delta)     # macOS: small deltas, no 120 factor
+        else:
+            step = -int(event.delta / 120)
+        if step:
+            canvas.yview_scroll(step, "units")
+
+    def _bind(_):
+        canvas.bind_all("<MouseWheel>", _wheel)
+        canvas.bind_all("<Button-4>", _wheel)
+        canvas.bind_all("<Button-5>", _wheel)
+
+    def _unbind(_):
+        canvas.unbind_all("<MouseWheel>")
+        canvas.unbind_all("<Button-4>")
+        canvas.unbind_all("<Button-5>")
+
+    outer.bind("<Enter>", _bind)
+    outer.bind("<Leave>", _unbind)
+
+    notebook.add(outer, text=text)
+    return inner
+
+
 class GUIApp:
     def __init__(self, root, node: RobotGUINode):
         self.root = root
         self.node = node
         self.root.title("Low Cost Robot Arm - Kinematics GUI")
-        self.root.geometry("760x980")
+        # 980 px is taller than most laptop screens (macOS then clamps the
+        # window and the bottom is lost), so fit the window to the screen.
+        h = min(980, root.winfo_screenheight() - 80)
+        self.root.geometry(f"760x{h}")
+        self.root.minsize(640, 520)
 
         self.is_ready = False
         self._suppress = False          # blocks slider callbacks during programmatic set
@@ -379,19 +483,23 @@ class GUIApp:
                 value=mode, command=self.on_mode_change
             ).grid(row=idx % 3, column=idx // 3, sticky="w", padx=4, pady=1)
 
+        # ---------------- Bottom bar ----------------
+        # Packed BEFORE the notebook: pack() gives space in packing order, so
+        # a bar packed after an expanding notebook gets zero height and the
+        # Reset button disappears.
+        bottom_frame = ttk.Frame(root, padding=10)
+        bottom_frame.pack(fill="x", side="bottom")
+        ttk.Button(bottom_frame, text="Reset to Zero", command=self.reset_all).pack(fill="x")
+
         # ---------------- Tabs ----------------
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill="both", expand=True, padx=15, pady=5)
 
-        self.tab_sliders = ttk.Frame(self.notebook, padding=10)
-        self.tab_constants = ttk.Frame(self.notebook, padding=10)
-        self.tab_signals = ttk.Frame(self.notebook, padding=10)
-        self.tab_traj = ttk.Frame(self.notebook, padding=10)
-
-        self.notebook.add(self.tab_sliders, text=" Sliders ")
-        self.notebook.add(self.tab_constants, text=" Constants ")
-        self.notebook.add(self.tab_signals, text=" Signal Builder ")
-        self.notebook.add(self.tab_traj, text=" Trajectory ")
+        # Each page scrolls, so a tab taller than the window is never cut off
+        self.tab_sliders = make_scrollable_tab(self.notebook, " Sliders ")
+        self.tab_constants = make_scrollable_tab(self.notebook, " Constants ")
+        self.tab_signals = make_scrollable_tab(self.notebook, " Signal Builder ")
+        self.tab_traj = make_scrollable_tab(self.notebook, " Trajectory ")
 
         self.slider_frames = {}
         self.const_frames = {}
@@ -410,10 +518,6 @@ class GUIApp:
         self.signal_btn.pack(pady=12)
 
         self.build_trajectory_tab()
-
-        bottom_frame = ttk.Frame(root, padding=10)
-        bottom_frame.pack(fill="x", side="bottom")
-        ttk.Button(bottom_frame, text="Reset to Zero", command=self.reset_all).pack(fill="x")
 
         self.is_ready = True
         self.on_mode_change()
@@ -441,8 +545,8 @@ class GUIApp:
             ttk.Label(row, text=f"{label} ({spec['unit']})", width=18).pack(side="left")
             val_lbl = ttk.Label(row, text=f"{init:+.3f}", width=9)
             val_lbl.pack(side="right")
-            s = ttk.Scale(row, from_=lo, to=hi, orient="horizontal",
-                          command=lambda v, m=mode, k=key: self.on_slider_change(m, k, v))
+            s = RangeScale(row, lo, hi, orient="horizontal",
+                           command=lambda v, m=mode, k=key: self.on_slider_change(m, k, v))
             s.set(init)
             s.pack(side="right", fill="x", expand=True, padx=6)
             self.sliders[mode][key] = (s, val_lbl)
@@ -521,6 +625,8 @@ class GUIApp:
         Joint-space -> quintic per joint, one SISO fuzzy controller per joint.
         Task-space  -> straight line with quintic timing, MIMO fuzzy controller
                        on the Cartesian error, then J# to joint rates.
+        The "Closed-loop control" box sends "controller": true/false with
+        each goal; unticked, trajectory_node runs the plan open loop.
         """
         tab = self.tab_traj
 
@@ -612,6 +718,16 @@ class GUIApp:
         self.traj_T_entry.insert(0, "3.0")
         self.traj_T_entry.pack(side="left")
 
+        # Closed loop = fuzzy controller feedback on; unticked = open loop,
+        # the plan is sent with no feedback from the measured state.
+        crow = ttk.Frame(act)
+        crow.pack(fill="x", pady=2)
+        self.traj_controller = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            crow, variable=self.traj_controller,
+            text="Closed-loop control (fuzzy controller ON).  "
+                 "Untick for open loop: no feedback.").pack(anchor="w")
+
         brow = ttk.Frame(act)
         brow.pack(fill="x", pady=(8, 2))
         ttk.Button(brow, text="Execute Trajectory",
@@ -686,11 +802,13 @@ class GUIApp:
                              "nothing to execute. Change a joint angle.")
                     return
                 self.node.dispatch_trajectory(
-                    {"mode": "joint", "q_end": q_end, "T": T})
+                    {"mode": "joint", "q_end": q_end, "T": T,
+                     "controller": self.traj_controller.get()})
             else:
                 x_end = [float(self.traj_x_entries[a].get()) for a in ("X", "Y", "Z")]
                 self.node.dispatch_trajectory(
-                    {"mode": "task", "x_end": x_end, "T": T})
+                    {"mode": "task", "x_end": x_end, "T": T,
+                     "controller": self.traj_controller.get()})
         except ValueError:
             self.lbl_traj_status.config(text="Status: invalid number in a target field")
 
@@ -698,7 +816,8 @@ class GUIApp:
         self.node.dispatch_trajectory({"mode": "stop"})
 
     def traj_home(self):
-        self.node.dispatch_trajectory({"mode": "home", "T": self.traj_duration()})
+        self.node.dispatch_trajectory({"mode": "home", "T": self.traj_duration(),
+                                       "controller": self.traj_controller.get()})
 
     def traj_gripper(self, value):
         self.node.dispatch_trajectory({"mode": "gripper", "value": float(value)})
@@ -893,7 +1012,8 @@ class GUIApp:
         if not self.node.traj_seen:
             txt = "Status: waiting for trajectory_node"
         elif self.node.traj_running:
-            txt = (f"Status: RUNNING  {self.node.traj_mode}-space  "
+            loop = "closed loop" if self.node.traj_closed else "OPEN LOOP"
+            txt = (f"Status: RUNNING  {self.node.traj_mode}-space, {loop}  "
                    f"{self.node.traj_progress*100:5.1f}%")
         else:
             txt = "Status: idle"
